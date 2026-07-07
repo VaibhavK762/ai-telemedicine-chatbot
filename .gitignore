@@ -1,6 +1,90 @@
+# =========================
+# Python
+# =========================
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+
 .env
+
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+
+# =========================
+# Dataset files
+# =========================
+data/raw/
+data/final/
+
+*.parquet
+*.jsonl
+*.csv
+*.zip
+
+
+# keep folder structure
+!data/raw/.gitkeep
+!data/formatted/.gitkeep
+!data/final/.gitkeep
+
+
+# =========================
+# Models / Checkpoints
+# =========================
+models/
+model/checkpoints/
+checkpoints/
+
 *.pt
 *.pth
+*.bin
+*.safetensors
+*.gguf
+*.onnx
+
+
+# =========================
+# HuggingFace
+# =========================
+.cache/
+.cache_huggingface/
+huggingface/
+
+
+# =========================
+# Training outputs
+# =========================
+wandb/
+runs/
+logs/
+outputs/
+
+
+# =========================
+# Databases
+# =========================
 *.db
-venv/
+*.sqlite
+*.sqlite3
+
+chroma/
+qdrant_storage/
+
+
+# =========================
+# OS / IDE
+# =========================
+.vscode/
+.idea/
+
+.DS_Store
+Thumbs.db

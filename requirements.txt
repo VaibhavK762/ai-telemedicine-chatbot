@@ -1,0 +1,2 @@
+# Requirements list for Telemedicine AI
+# To be populated as packages are added.
