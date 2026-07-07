@@ -88,3 +88,6 @@ qdrant_storage/
 
 .DS_Store
 Thumbs.db
+
+logs/
+*.log
