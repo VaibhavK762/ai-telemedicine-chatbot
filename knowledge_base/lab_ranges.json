@@ -1,1 +1,2514 @@
-{}
+{
+    "blood": {
+        "hemoglobin": {
+            "display_name": "Hemoglobin",
+            "aliases": [
+                "Hb",
+                "HGB",
+                "Haemoglobin"
+            ],
+            "type": "numeric",
+            "unit": "g/dL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 13.5,
+                    "max": 17.5
+                },
+                "female": {
+                    "min": 12.0,
+                    "max": 15.5
+                }
+            },
+            "critical_values": {
+                "low": 7,
+                "high": 20
+            },
+            "low": {
+                "meaning": "Hemoglobin is below the reference range.",
+                "possible_causes": [
+                    "Iron deficiency",
+                    "Vitamin B12 deficiency",
+                    "Blood loss",
+                    "Chronic inflammation",
+                    "Kidney disease"
+                ],
+                "follow_up": [
+                    "Iron studies",
+                    "Vitamin B12 level",
+                    "Complete blood count review"
+                ]
+            },
+            "high": {
+                "meaning": "Hemoglobin is above the reference range.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Polycythemia",
+                    "Chronic low oxygen conditions"
+                ],
+                "follow_up": [
+                    "Repeat CBC",
+                    "Clinical evaluation"
+                ]
+            }
+        },
+        "hematocrit": {
+            "display_name": "Hematocrit",
+            "aliases": [
+                "HCT",
+                "Packed Cell Volume",
+                "PCV"
+            ],
+            "type": "numeric",
+            "unit": "%",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 41,
+                    "max": 50
+                },
+                "female": {
+                    "min": 36,
+                    "max": 44
+                }
+            },
+            "low": {
+                "meaning": "Percentage of red blood cells is below reference range.",
+                "possible_causes": [
+                    "Anemia",
+                    "Blood loss",
+                    "Nutritional deficiency"
+                ],
+                "follow_up": [
+                    "CBC evaluation",
+                    "Iron studies"
+                ]
+            },
+            "high": {
+                "meaning": "Percentage of red blood cells is elevated.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Polycythemia"
+                ],
+                "follow_up": [
+                    "Repeat CBC"
+                ]
+            }
+        },
+        "rbc_count": {
+            "display_name": "Red Blood Cell Count",
+            "aliases": [
+                "RBC",
+                "Erythrocyte Count",
+                "Red Cell Count"
+            ],
+            "type": "numeric",
+            "unit": "million/uL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 4.7,
+                    "max": 6.1
+                },
+                "female": {
+                    "min": 4.2,
+                    "max": 5.4
+                }
+            },
+            "low": {
+                "meaning": "Red blood cell count is reduced.",
+                "possible_causes": [
+                    "Anemia",
+                    "Blood loss",
+                    "Bone marrow problems"
+                ],
+                "follow_up": [
+                    "CBC review",
+                    "Iron and vitamin testing"
+                ]
+            },
+            "high": {
+                "meaning": "Red blood cell count is increased.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Polycythemia"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        },
+        "wbc_count": {
+            "display_name": "White Blood Cell Count",
+            "aliases": [
+                "WBC",
+                "Leukocyte Count",
+                "Total Leukocyte Count",
+                "TLC"
+            ],
+            "type": "numeric",
+            "unit": "cells/uL",
+            "sex_based": false,
+            "age_based": true,
+            "ranges": {
+                "adult": {
+                    "min": 4000,
+                    "max": 11000
+                }
+            },
+            "critical_values": {
+                "low": 1000,
+                "high": 50000
+            },
+            "low": {
+                "meaning": "White blood cell count is below reference range.",
+                "possible_causes": [
+                    "Viral infections",
+                    "Bone marrow disorders",
+                    "Certain medications"
+                ],
+                "follow_up": [
+                    "Repeat CBC",
+                    "Differential count"
+                ]
+            },
+            "high": {
+                "meaning": "White blood cell count is elevated.",
+                "possible_causes": [
+                    "Infection",
+                    "Inflammation",
+                    "Stress response"
+                ],
+                "follow_up": [
+                    "Differential WBC count",
+                    "Clinical evaluation"
+                ]
+            }
+        },
+        "platelets": {
+            "display_name": "Platelet Count",
+            "aliases": [
+                "PLT",
+                "Platelets",
+                "Thrombocyte Count"
+            ],
+            "type": "numeric",
+            "unit": "cells/uL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 150000,
+                    "max": 450000
+                }
+            },
+            "critical_values": {
+                "low": 50000,
+                "high": 1000000
+            },
+            "low": {
+                "meaning": "Platelet count is reduced.",
+                "possible_causes": [
+                    "Viral illness",
+                    "Bone marrow conditions",
+                    "Immune platelet destruction"
+                ],
+                "follow_up": [
+                    "Repeat CBC",
+                    "Medical evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Platelet count is increased.",
+                "possible_causes": [
+                    "Inflammation",
+                    "Iron deficiency",
+                    "Bone marrow disorders"
+                ],
+                "follow_up": [
+                    "Repeat platelet count"
+                ]
+            }
+        },
+        "mcv": {
+            "display_name": "Mean Corpuscular Volume",
+            "aliases": [
+                "MCV",
+                "Mean Cell Volume"
+            ],
+            "type": "numeric",
+            "unit": "fL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 80,
+                    "max": 100
+                }
+            },
+            "low": {
+                "meaning": "Average red blood cell size is smaller than reference range.",
+                "possible_causes": [
+                    "Iron deficiency anemia",
+                    "Thalassemia"
+                ],
+                "follow_up": [
+                    "Iron studies",
+                    "Peripheral blood smear"
+                ]
+            },
+            "high": {
+                "meaning": "Average red blood cell size is larger than reference range.",
+                "possible_causes": [
+                    "Vitamin B12 deficiency",
+                    "Folate deficiency",
+                    "Liver disease"
+                ],
+                "follow_up": [
+                    "Vitamin B12 level",
+                    "Folate level"
+                ]
+            }
+        },
+        "mch": {
+            "display_name": "Mean Corpuscular Hemoglobin",
+            "aliases": [
+                "MCH"
+            ],
+            "type": "numeric",
+            "unit": "pg",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 27,
+                    "max": 33
+                }
+            },
+            "low": {
+                "meaning": "Average hemoglobin amount per red blood cell is reduced.",
+                "possible_causes": [
+                    "Iron deficiency",
+                    "Microcytic anemia"
+                ],
+                "follow_up": [
+                    "Iron studies",
+                    "CBC correlation"
+                ]
+            },
+            "high": {
+                "meaning": "Average hemoglobin amount per red blood cell is increased.",
+                "possible_causes": [
+                    "Macrocytic anemia",
+                    "Vitamin B12 deficiency"
+                ],
+                "follow_up": [
+                    "Vitamin B12 and folate testing"
+                ]
+            }
+        },
+        "mchc": {
+            "display_name": "Mean Corpuscular Hemoglobin Concentration",
+            "aliases": [
+                "MCHC"
+            ],
+            "type": "numeric",
+            "unit": "g/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 32,
+                    "max": 36
+                }
+            },
+            "low": {
+                "meaning": "Hemoglobin concentration inside red cells is reduced.",
+                "possible_causes": [
+                    "Iron deficiency anemia"
+                ],
+                "follow_up": [
+                    "Iron profile"
+                ]
+            },
+            "high": {
+                "meaning": "Hemoglobin concentration is above reference range.",
+                "possible_causes": [
+                    "Hereditary spherocytosis",
+                    "Laboratory variation"
+                ],
+                "follow_up": [
+                    "Repeat CBC",
+                    "Blood smear"
+                ]
+            }
+        },
+        "glucose": {
+            "display_name": "Blood Glucose",
+            "aliases": [
+                "Glucose",
+                "Blood Sugar",
+                "Fasting Blood Sugar",
+                "FBS"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "fasting": {
+                    "min": 70,
+                    "max": 99
+                }
+            },
+            "critical_values": {
+                "low": 54,
+                "high": 250
+            },
+            "low": {
+                "meaning": "Blood glucose is below reference range.",
+                "possible_causes": [
+                    "Low food intake",
+                    "Diabetes medication effect",
+                    "Hormonal causes"
+                ],
+                "follow_up": [
+                    "Repeat glucose test",
+                    "Clinical assessment"
+                ]
+            },
+            "high": {
+                "meaning": "Blood glucose is elevated.",
+                "possible_causes": [
+                    "Diabetes mellitus",
+                    "Stress response",
+                    "Medication effects"
+                ],
+                "follow_up": [
+                    "HbA1c test",
+                    "Repeat fasting glucose"
+                ]
+            }
+        },
+        "hba1c": {
+            "display_name": "Hemoglobin A1c",
+            "aliases": [
+                "HbA1c",
+                "A1C",
+                "Glycated Hemoglobin"
+            ],
+            "type": "numeric",
+            "unit": "%",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 4.0,
+                    "max": 5.6
+                }
+            },
+            "low": {
+                "meaning": "HbA1c is below typical range.",
+                "possible_causes": [
+                    "Low average glucose",
+                    "Certain blood disorders"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "HbA1c is elevated.",
+                "possible_causes": [
+                    "Prediabetes",
+                    "Diabetes mellitus"
+                ],
+                "follow_up": [
+                    "Diabetes evaluation",
+                    "Glucose monitoring"
+                ]
+            }
+        },
+        "insulin": {
+            "display_name": "Insulin",
+            "aliases": [
+                "Serum Insulin",
+                "Fasting Insulin"
+            ],
+            "type": "numeric",
+            "unit": "uIU/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "fasting": {
+                    "min": 2,
+                    "max": 25
+                }
+            },
+            "low": {
+                "meaning": "Insulin level is below reference range.",
+                "possible_causes": [
+                    "Reduced pancreatic insulin production",
+                    "Type 1 diabetes"
+                ],
+                "follow_up": [
+                    "C-peptide test",
+                    "Glucose evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Insulin level is above reference range.",
+                "possible_causes": [
+                    "Insulin resistance",
+                    "Metabolic syndrome"
+                ],
+                "follow_up": [
+                    "Glucose testing",
+                    "Diabetes evaluation"
+                ]
+            }
+        },
+        "c_peptide": {
+            "display_name": "C-Peptide",
+            "aliases": [
+                "C Peptide",
+                "Connecting Peptide"
+            ],
+            "type": "numeric",
+            "unit": "ng/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0.5,
+                    "max": 2.0
+                }
+            },
+            "low": {
+                "meaning": "C-peptide is below reference range.",
+                "possible_causes": [
+                    "Low insulin production",
+                    "Pancreatic beta cell dysfunction"
+                ],
+                "follow_up": [
+                    "Diabetes classification evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "C-peptide is above reference range.",
+                "possible_causes": [
+                    "Insulin resistance",
+                    "Increased insulin production"
+                ],
+                "follow_up": [
+                    "Glucose and insulin evaluation"
+                ]
+            }
+        },
+        "total_cholesterol": {
+            "display_name": "Total Cholesterol",
+            "aliases": [
+                "Cholesterol",
+                "TC"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 200
+                }
+            },
+            "low": {
+                "meaning": "Total cholesterol is below typical range.",
+                "possible_causes": [
+                    "Malnutrition",
+                    "Certain chronic illnesses"
+                ],
+                "follow_up": [
+                    "Clinical evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Total cholesterol is elevated.",
+                "possible_causes": [
+                    "Dietary factors",
+                    "Genetic cholesterol disorders",
+                    "Metabolic conditions"
+                ],
+                "follow_up": [
+                    "Complete lipid profile",
+                    "Cardiovascular risk assessment"
+                ]
+            }
+        },
+        "ldl": {
+            "display_name": "Low Density Lipoprotein Cholesterol",
+            "aliases": [
+                "LDL",
+                "LDL-C",
+                "Bad Cholesterol"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "optimal": {
+                    "min": 0,
+                    "max": 100
+                }
+            },
+            "low": {
+                "meaning": "LDL is below typical levels.",
+                "possible_causes": [
+                    "Dietary factors",
+                    "Lipid lowering medication"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "LDL cholesterol is elevated.",
+                "possible_causes": [
+                    "Increased cardiovascular risk",
+                    "Familial hypercholesterolemia"
+                ],
+                "follow_up": [
+                    "Lifestyle assessment",
+                    "Cardiovascular risk evaluation"
+                ]
+            }
+        },
+        "hdl": {
+            "display_name": "High Density Lipoprotein Cholesterol",
+            "aliases": [
+                "HDL",
+                "HDL-C",
+                "Good Cholesterol"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 40,
+                    "max": 100
+                },
+                "female": {
+                    "min": 50,
+                    "max": 100
+                }
+            },
+            "low": {
+                "meaning": "HDL cholesterol is below recommended level.",
+                "possible_causes": [
+                    "Low physical activity",
+                    "Metabolic syndrome"
+                ],
+                "follow_up": [
+                    "Lifestyle evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "HDL is above typical reference levels.",
+                "possible_causes": [
+                    "Genetic variation"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        },
+        "triglycerides": {
+            "display_name": "Triglycerides",
+            "aliases": [
+                "TG",
+                "Triglyceride"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 150
+                }
+            },
+            "low": {
+                "meaning": "Triglyceride level is below typical range.",
+                "possible_causes": [
+                    "Low fat intake",
+                    "Malnutrition",
+                    "Certain metabolic conditions"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "Triglyceride level is elevated.",
+                "possible_causes": [
+                    "Insulin resistance",
+                    "Diabetes",
+                    "High calorie intake",
+                    "Genetic lipid disorders"
+                ],
+                "follow_up": [
+                    "Repeat fasting lipid profile",
+                    "Metabolic evaluation"
+                ]
+            }
+        },
+        "vldl": {
+            "display_name": "Very Low Density Lipoprotein",
+            "aliases": [
+                "VLDL",
+                "VLDL-C"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 5,
+                    "max": 40
+                }
+            },
+            "low": {
+                "meaning": "VLDL level is below reference range.",
+                "possible_causes": [
+                    "Low triglyceride levels"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "VLDL level is elevated.",
+                "possible_causes": [
+                    "High triglycerides",
+                    "Metabolic syndrome"
+                ],
+                "follow_up": [
+                    "Lipid profile review"
+                ]
+            }
+        },
+        "alt": {
+            "display_name": "Alanine Aminotransferase",
+            "aliases": [
+                "ALT",
+                "SGPT"
+            ],
+            "type": "numeric",
+            "unit": "U/L",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 0,
+                    "max": 45
+                },
+                "female": {
+                    "min": 0,
+                    "max": 35
+                }
+            },
+            "low": {
+                "meaning": "ALT below range is usually not clinically significant.",
+                "possible_causes": [
+                    "Individual variation"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "ALT enzyme level is elevated.",
+                "possible_causes": [
+                    "Liver inflammation",
+                    "Fatty liver",
+                    "Medication effects",
+                    "Viral hepatitis"
+                ],
+                "follow_up": [
+                    "Liver function review",
+                    "Medical evaluation"
+                ]
+            }
+        },
+        "ast": {
+            "display_name": "Aspartate Aminotransferase",
+            "aliases": [
+                "AST",
+                "SGOT"
+            ],
+            "type": "numeric",
+            "unit": "U/L",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 0,
+                    "max": 40
+                },
+                "female": {
+                    "min": 0,
+                    "max": 35
+                }
+            },
+            "low": {
+                "meaning": "AST below range is usually not clinically significant.",
+                "possible_causes": [
+                    "Individual variation"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "AST enzyme level is elevated.",
+                "possible_causes": [
+                    "Liver injury",
+                    "Muscle injury",
+                    "Alcohol related liver changes"
+                ],
+                "follow_up": [
+                    "Liver function tests",
+                    "Clinical assessment"
+                ]
+            }
+        },
+        "alkaline_phosphatase": {
+            "display_name": "Alkaline Phosphatase",
+            "aliases": [
+                "ALP",
+                "Alk Phos"
+            ],
+            "type": "numeric",
+            "unit": "U/L",
+            "sex_based": true,
+            "age_based": true,
+            "ranges": {
+                "adult": {
+                    "min": 40,
+                    "max": 130
+                }
+            },
+            "low": {
+                "meaning": "ALP level is below reference range.",
+                "possible_causes": [
+                    "Nutritional deficiencies",
+                    "Certain genetic conditions"
+                ],
+                "follow_up": [
+                    "Clinical evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "ALP level is elevated.",
+                "possible_causes": [
+                    "Liver bile duct conditions",
+                    "Bone growth or bone disorders"
+                ],
+                "follow_up": [
+                    "GGT test",
+                    "Liver and bone evaluation"
+                ]
+            }
+        },
+        "bilirubin_total": {
+            "display_name": "Total Bilirubin",
+            "aliases": [
+                "Total Bilirubin",
+                "TBIL",
+                "Serum Bilirubin"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0.1,
+                    "max": 1.2
+                }
+            },
+            "low": {
+                "meaning": "Low bilirubin is usually not clinically significant.",
+                "possible_causes": [
+                    "Individual variation"
+                ],
+                "follow_up": [
+                    "Usually none unless clinically indicated"
+                ]
+            },
+            "high": {
+                "meaning": "Total bilirubin is above reference range.",
+                "possible_causes": [
+                    "Liver dysfunction",
+                    "Bile flow obstruction",
+                    "Increased red blood cell breakdown"
+                ],
+                "follow_up": [
+                    "Liver function tests",
+                    "Direct bilirubin test"
+                ]
+            }
+        },
+        "bilirubin_direct": {
+            "display_name": "Direct Bilirubin",
+            "aliases": [
+                "Direct Bilirubin",
+                "Conjugated Bilirubin",
+                "DBIL"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 0.3
+                }
+            },
+            "low": {
+                "meaning": "Low direct bilirubin is generally not clinically significant.",
+                "possible_causes": [
+                    "Normal variation"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "Direct bilirubin is elevated.",
+                "possible_causes": [
+                    "Bile duct obstruction",
+                    "Liver inflammation",
+                    "Hepatitis"
+                ],
+                "follow_up": [
+                    "Liver function review",
+                    "Medical evaluation"
+                ]
+            }
+        },
+        "albumin": {
+            "display_name": "Albumin",
+            "aliases": [
+                "Serum Albumin",
+                "ALB"
+            ],
+            "type": "numeric",
+            "unit": "g/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 3.5,
+                    "max": 5.0
+                }
+            },
+            "low": {
+                "meaning": "Albumin level is below reference range.",
+                "possible_causes": [
+                    "Liver disease",
+                    "Kidney protein loss",
+                    "Inflammation",
+                    "Poor nutrition"
+                ],
+                "follow_up": [
+                    "Liver function evaluation",
+                    "Urine protein testing"
+                ]
+            },
+            "high": {
+                "meaning": "Albumin level is above reference range.",
+                "possible_causes": [
+                    "Dehydration"
+                ],
+                "follow_up": [
+                    "Hydration assessment"
+                ]
+            }
+        },
+        "ggt": {
+            "display_name": "Gamma Glutamyl Transferase",
+            "aliases": [
+                "GGT",
+                "Gamma GT",
+                "Gamma-glutamyltransferase"
+            ],
+            "type": "numeric",
+            "unit": "U/L",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 0,
+                    "max": 55
+                },
+                "female": {
+                    "min": 0,
+                    "max": 38
+                }
+            },
+            "low": {
+                "meaning": "Low GGT usually has limited clinical significance.",
+                "possible_causes": [
+                    "Normal variation"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "GGT enzyme level is elevated.",
+                "possible_causes": [
+                    "Liver stress",
+                    "Alcohol-related liver changes",
+                    "Bile duct problems"
+                ],
+                "follow_up": [
+                    "Liver function evaluation"
+                ]
+            }
+        },
+        "creatinine": {
+            "display_name": "Creatinine",
+            "aliases": [
+                "Serum Creatinine",
+                "Creat",
+                "SCr"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 0.7,
+                    "max": 1.3
+                },
+                "female": {
+                    "min": 0.6,
+                    "max": 1.1
+                }
+            },
+            "low": {
+                "meaning": "Creatinine is below the reference range.",
+                "possible_causes": [
+                    "Reduced muscle mass",
+                    "Low protein intake"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "Creatinine is above reference range.",
+                "possible_causes": [
+                    "Reduced kidney filtration",
+                    "Dehydration",
+                    "Kidney disease"
+                ],
+                "follow_up": [
+                    "eGFR calculation",
+                    "Kidney function evaluation"
+                ]
+            }
+        },
+        "bun": {
+            "display_name": "Blood Urea Nitrogen",
+            "aliases": [
+                "BUN",
+                "Blood Urea",
+                "Urea Nitrogen"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 7,
+                    "max": 20
+                }
+            },
+            "low": {
+                "meaning": "BUN is below reference range.",
+                "possible_causes": [
+                    "Low protein intake",
+                    "Liver dysfunction"
+                ],
+                "follow_up": [
+                    "Clinical evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "BUN is elevated.",
+                "possible_causes": [
+                    "Reduced kidney function",
+                    "Dehydration",
+                    "High protein breakdown"
+                ],
+                "follow_up": [
+                    "Creatinine test",
+                    "Kidney function evaluation"
+                ]
+            }
+        },
+        "egfr": {
+            "display_name": "Estimated Glomerular Filtration Rate",
+            "aliases": [
+                "eGFR",
+                "Estimated GFR"
+            ],
+            "type": "numeric",
+            "unit": "mL/min/1.73m2",
+            "sex_based": true,
+            "age_based": true,
+            "ranges": {
+                "standard": {
+                    "min": 90,
+                    "max": 200
+                }
+            },
+            "low": {
+                "meaning": "eGFR is below expected range indicating reduced kidney filtration.",
+                "possible_causes": [
+                    "Chronic kidney disease",
+                    "Acute kidney injury"
+                ],
+                "follow_up": [
+                    "Repeat kidney function tests",
+                    "Urine albumin testing"
+                ]
+            },
+            "high": {
+                "meaning": "High eGFR is usually not clinically concerning.",
+                "possible_causes": [
+                    "Normal variation"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        },
+        "uric_acid": {
+            "display_name": "Uric Acid",
+            "aliases": [
+                "Serum Uric Acid",
+                "Urate"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 3.5,
+                    "max": 7.2
+                },
+                "female": {
+                    "min": 2.6,
+                    "max": 6.0
+                }
+            },
+            "low": {
+                "meaning": "Uric acid level is below reference range.",
+                "possible_causes": [
+                    "Certain medications",
+                    "Low production"
+                ],
+                "follow_up": [
+                    "Clinical review"
+                ]
+            },
+            "high": {
+                "meaning": "Uric acid level is elevated.",
+                "possible_causes": [
+                    "Gout risk",
+                    "Reduced kidney excretion"
+                ],
+                "follow_up": [
+                    "Kidney evaluation",
+                    "Gout assessment if symptoms exist"
+                ]
+            }
+        },
+        "sodium": {
+            "display_name": "Sodium",
+            "aliases": [
+                "Na",
+                "Na+",
+                "Serum Sodium"
+            ],
+            "type": "numeric",
+            "unit": "mmol/L",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 135,
+                    "max": 145
+                }
+            },
+            "critical_values": {
+                "low": 120,
+                "high": 160
+            },
+            "low": {
+                "meaning": "Sodium level is below reference range.",
+                "possible_causes": [
+                    "Excess fluid retention",
+                    "Certain medications",
+                    "Hormonal disorders",
+                    "Kidney-related causes"
+                ],
+                "follow_up": [
+                    "Repeat electrolyte panel",
+                    "Clinical evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Sodium level is above reference range.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Excess sodium intake",
+                    "Water balance disorders"
+                ],
+                "follow_up": [
+                    "Fluid status assessment",
+                    "Repeat electrolyte testing"
+                ]
+            }
+        },
+        "potassium": {
+            "display_name": "Potassium",
+            "aliases": [
+                "K",
+                "K+",
+                "Serum Potassium"
+            ],
+            "type": "numeric",
+            "unit": "mmol/L",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 3.5,
+                    "max": 5.0
+                }
+            },
+            "critical_values": {
+                "low": 2.5,
+                "high": 6.5
+            },
+            "low": {
+                "meaning": "Potassium level is below reference range.",
+                "possible_causes": [
+                    "Vomiting or diarrhea",
+                    "Certain medications",
+                    "Low potassium intake"
+                ],
+                "follow_up": [
+                    "Repeat potassium test",
+                    "Medical review if significantly abnormal"
+                ]
+            },
+            "high": {
+                "meaning": "Potassium level is above reference range.",
+                "possible_causes": [
+                    "Reduced kidney function",
+                    "Medication effects",
+                    "Cell breakdown"
+                ],
+                "follow_up": [
+                    "Repeat potassium confirmation",
+                    "Kidney function evaluation"
+                ]
+            }
+        },
+        "chloride": {
+            "display_name": "Chloride",
+            "aliases": [
+                "Cl",
+                "Cl-",
+                "Serum Chloride"
+            ],
+            "type": "numeric",
+            "unit": "mmol/L",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 98,
+                    "max": 107
+                }
+            },
+            "low": {
+                "meaning": "Chloride level is below reference range.",
+                "possible_causes": [
+                    "Vomiting",
+                    "Fluid imbalance",
+                    "Metabolic disturbances"
+                ],
+                "follow_up": [
+                    "Electrolyte evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Chloride level is above reference range.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Kidney-related conditions",
+                    "Acid-base imbalance"
+                ],
+                "follow_up": [
+                    "Electrolyte review",
+                    "Clinical assessment"
+                ]
+            }
+        },
+        "tsh": {
+            "display_name": "Thyroid Stimulating Hormone",
+            "aliases": [
+                "TSH",
+                "Thyrotropin"
+            ],
+            "type": "numeric",
+            "unit": "mIU/L",
+            "sex_based": false,
+            "age_based": true,
+            "ranges": {
+                "adult": {
+                    "min": 0.4,
+                    "max": 4.0
+                }
+            },
+            "low": {
+                "meaning": "TSH is below the reference range.",
+                "possible_causes": [
+                    "Hyperthyroidism",
+                    "Excess thyroid hormone medication"
+                ],
+                "follow_up": [
+                    "Free T4 test",
+                    "Free T3 test",
+                    "Thyroid evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "TSH is above the reference range.",
+                "possible_causes": [
+                    "Hypothyroidism",
+                    "Autoimmune thyroid disease"
+                ],
+                "follow_up": [
+                    "Free T4 test",
+                    "Anti-TPO antibody test"
+                ]
+            }
+        },
+        "t3": {
+            "display_name": "Triiodothyronine",
+            "aliases": [
+                "T3",
+                "Total T3",
+                "Free T3"
+            ],
+            "type": "numeric",
+            "unit": "ng/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 80,
+                    "max": 180
+                }
+            },
+            "low": {
+                "meaning": "T3 level is below reference range.",
+                "possible_causes": [
+                    "Hypothyroidism",
+                    "Severe illness"
+                ],
+                "follow_up": [
+                    "TSH test",
+                    "Free T4 test"
+                ]
+            },
+            "high": {
+                "meaning": "T3 level is above reference range.",
+                "possible_causes": [
+                    "Hyperthyroidism"
+                ],
+                "follow_up": [
+                    "Thyroid evaluation"
+                ]
+            }
+        },
+        "t4": {
+            "display_name": "Thyroxine",
+            "aliases": [
+                "T4",
+                "Total T4",
+                "Free T4"
+            ],
+            "type": "numeric",
+            "unit": "ug/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 5,
+                    "max": 12
+                }
+            },
+            "low": {
+                "meaning": "T4 level is below reference range.",
+                "possible_causes": [
+                    "Hypothyroidism"
+                ],
+                "follow_up": [
+                    "TSH correlation",
+                    "Thyroid evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "T4 level is above reference range.",
+                "possible_causes": [
+                    "Hyperthyroidism",
+                    "Excess thyroid medication"
+                ],
+                "follow_up": [
+                    "TSH correlation"
+                ]
+            }
+        },
+        "anti_tpo": {
+            "display_name": "Anti Thyroid Peroxidase Antibody",
+            "aliases": [
+                "Anti TPO",
+                "TPO Antibody",
+                "Thyroid Peroxidase Antibody"
+            ],
+            "type": "numeric",
+            "unit": "IU/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 35
+                }
+            },
+            "low": {
+                "meaning": "Low Anti-TPO is generally considered normal.",
+                "possible_causes": [
+                    "No significant antibody elevation"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "Anti-TPO antibody level is elevated.",
+                "possible_causes": [
+                    "Autoimmune thyroid conditions",
+                    "Hashimoto thyroiditis"
+                ],
+                "follow_up": [
+                    "Thyroid function monitoring"
+                ]
+            }
+        },
+        "vitamin_d": {
+            "display_name": "Vitamin D",
+            "aliases": [
+                "Vitamin D",
+                "25-OH Vitamin D",
+                "25 Hydroxy Vitamin D"
+            ],
+            "type": "numeric",
+            "unit": "ng/mL",
+            "sex_based": false,
+            "age_based": true,
+            "ranges": {
+                "adult": {
+                    "min": 30,
+                    "max": 100
+                }
+            },
+            "low": {
+                "meaning": "Vitamin D level is below the recommended range.",
+                "possible_causes": [
+                    "Low sunlight exposure",
+                    "Low dietary intake",
+                    "Absorption problems"
+                ],
+                "follow_up": [
+                    "Vitamin D supplementation evaluation",
+                    "Calcium level assessment"
+                ]
+            },
+            "high": {
+                "meaning": "Vitamin D level is above recommended range.",
+                "possible_causes": [
+                    "Excess supplementation"
+                ],
+                "follow_up": [
+                    "Calcium monitoring",
+                    "Supplement review"
+                ]
+            }
+        },
+        "vitamin_b12": {
+            "display_name": "Vitamin B12",
+            "aliases": [
+                "B12",
+                "Cobalamin"
+            ],
+            "type": "numeric",
+            "unit": "pg/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 200,
+                    "max": 900
+                }
+            },
+            "low": {
+                "meaning": "Vitamin B12 level is below reference range.",
+                "possible_causes": [
+                    "Low dietary intake",
+                    "Absorption problems",
+                    "Pernicious anemia"
+                ],
+                "follow_up": [
+                    "B12 replacement evaluation",
+                    "CBC correlation"
+                ]
+            },
+            "high": {
+                "meaning": "Vitamin B12 is above typical range.",
+                "possible_causes": [
+                    "Supplement use",
+                    "Certain medical conditions"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        },
+        "folate": {
+            "display_name": "Folate",
+            "aliases": [
+                "Folic Acid",
+                "Vitamin B9"
+            ],
+            "type": "numeric",
+            "unit": "ng/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 3,
+                    "max": 20
+                }
+            },
+            "low": {
+                "meaning": "Folate level is below reference range.",
+                "possible_causes": [
+                    "Low dietary intake",
+                    "Malabsorption"
+                ],
+                "follow_up": [
+                    "CBC review",
+                    "Nutritional evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "High folate is usually related to supplementation.",
+                "possible_causes": [
+                    "Folic acid supplementation"
+                ],
+                "follow_up": [
+                    "Clinical review"
+                ]
+            }
+        },
+        "iron": {
+            "display_name": "Serum Iron",
+            "aliases": [
+                "Iron",
+                "Serum Fe"
+            ],
+            "type": "numeric",
+            "unit": "ug/dL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 65,
+                    "max": 175
+                },
+                "female": {
+                    "min": 50,
+                    "max": 170
+                }
+            },
+            "low": {
+                "meaning": "Iron level is below reference range.",
+                "possible_causes": [
+                    "Iron deficiency",
+                    "Blood loss"
+                ],
+                "follow_up": [
+                    "Ferritin test",
+                    "Complete iron studies"
+                ]
+            },
+            "high": {
+                "meaning": "Iron level is above reference range.",
+                "possible_causes": [
+                    "Iron overload",
+                    "Excess supplementation"
+                ],
+                "follow_up": [
+                    "Ferritin and transferrin studies"
+                ]
+            }
+        },
+        "ferritin": {
+            "display_name": "Ferritin",
+            "aliases": [
+                "Serum Ferritin"
+            ],
+            "type": "numeric",
+            "unit": "ng/mL",
+            "sex_based": true,
+            "age_based": false,
+            "ranges": {
+                "male": {
+                    "min": 24,
+                    "max": 336
+                },
+                "female": {
+                    "min": 11,
+                    "max": 307
+                }
+            },
+            "low": {
+                "meaning": "Stored iron level is reduced.",
+                "possible_causes": [
+                    "Iron deficiency"
+                ],
+                "follow_up": [
+                    "Iron profile evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Ferritin is elevated.",
+                "possible_causes": [
+                    "Inflammation",
+                    "Iron overload",
+                    "Liver conditions"
+                ],
+                "follow_up": [
+                    "Iron studies",
+                    "Inflammation markers"
+                ]
+            }
+        },
+        "calcium": {
+            "display_name": "Calcium",
+            "aliases": [
+                "Serum Calcium",
+                "Ca",
+                "Ca++"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 8.5,
+                    "max": 10.5
+                }
+            },
+            "low": {
+                "meaning": "Calcium level is below reference range.",
+                "possible_causes": [
+                    "Vitamin D deficiency",
+                    "Parathyroid hormone disorders",
+                    "Kidney disease"
+                ],
+                "follow_up": [
+                    "Vitamin D test",
+                    "Parathyroid hormone test"
+                ]
+            },
+            "high": {
+                "meaning": "Calcium level is above reference range.",
+                "possible_causes": [
+                    "Hyperparathyroidism",
+                    "Excess calcium intake",
+                    "Certain medical conditions"
+                ],
+                "follow_up": [
+                    "Repeat calcium test",
+                    "Parathyroid evaluation"
+                ]
+            }
+        },
+        "magnesium": {
+            "display_name": "Magnesium",
+            "aliases": [
+                "Mg",
+                "Serum Magnesium"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 1.7,
+                    "max": 2.2
+                }
+            },
+            "low": {
+                "meaning": "Magnesium level is below reference range.",
+                "possible_causes": [
+                    "Low intake",
+                    "Digestive losses",
+                    "Certain medications"
+                ],
+                "follow_up": [
+                    "Electrolyte evaluation"
+                ]
+            },
+            "high": {
+                "meaning": "Magnesium level is above reference range.",
+                "possible_causes": [
+                    "Kidney dysfunction",
+                    "Excess supplementation"
+                ],
+                "follow_up": [
+                    "Kidney function testing"
+                ]
+            }
+        },
+        "crp": {
+            "display_name": "C-Reactive Protein",
+            "aliases": [
+                "CRP",
+                "C Reactive Protein"
+            ],
+            "type": "numeric",
+            "unit": "mg/L",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 5
+                }
+            },
+            "low": {
+                "meaning": "Low CRP is generally considered normal.",
+                "possible_causes": [
+                    "Low inflammatory activity"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "CRP is elevated, suggesting increased inflammation.",
+                "possible_causes": [
+                    "Infection",
+                    "Inflammatory conditions",
+                    "Recent injury"
+                ],
+                "follow_up": [
+                    "Clinical evaluation",
+                    "Repeat inflammatory markers if needed"
+                ]
+            }
+        },
+        "esr": {
+            "display_name": "Erythrocyte Sedimentation Rate",
+            "aliases": [
+                "ESR",
+                "Sed Rate",
+                "Sedimentation Rate"
+            ],
+            "type": "numeric",
+            "unit": "mm/hr",
+            "sex_based": true,
+            "age_based": true,
+            "ranges": {
+                "male": {
+                    "adult": {
+                        "min": 0,
+                        "max": 15
+                    }
+                },
+                "female": {
+                    "adult": {
+                        "min": 0,
+                        "max": 20
+                    }
+                }
+            },
+            "low": {
+                "meaning": "Low ESR is usually not clinically significant.",
+                "possible_causes": [
+                    "Normal variation"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "ESR is above reference range, indicating possible inflammation.",
+                "possible_causes": [
+                    "Infection",
+                    "Autoimmune conditions",
+                    "Inflammatory diseases"
+                ],
+                "follow_up": [
+                    "CRP test",
+                    "Clinical evaluation"
+                ]
+            }
+        },
+        "procalcitonin": {
+            "display_name": "Procalcitonin",
+            "aliases": [
+                "PCT",
+                "Procalcitonin"
+            ],
+            "type": "numeric",
+            "unit": "ng/mL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 0.1
+                }
+            },
+            "low": {
+                "meaning": "Low procalcitonin generally suggests low likelihood of bacterial infection.",
+                "possible_causes": [
+                    "Normal finding"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            },
+            "high": {
+                "meaning": "Procalcitonin level is elevated.",
+                "possible_causes": [
+                    "Bacterial infection",
+                    "Systemic inflammation"
+                ],
+                "follow_up": [
+                    "Medical evaluation",
+                    "Infection assessment"
+                ]
+            }
+        }
+    },
+    "urine": {
+        "ph": {
+            "display_name": "Urine pH",
+            "aliases": [
+                "pH",
+                "Urinary pH"
+            ],
+            "type": "numeric",
+            "unit": "",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 4.5,
+                    "max": 8.0
+                }
+            },
+            "low": {
+                "meaning": "Urine is more acidic than the usual range.",
+                "possible_causes": [
+                    "High protein diet",
+                    "Metabolic conditions"
+                ],
+                "follow_up": [
+                    "Repeat urinalysis if needed"
+                ]
+            },
+            "high": {
+                "meaning": "Urine is more alkaline than usual.",
+                "possible_causes": [
+                    "Urinary tract infection",
+                    "Diet related changes"
+                ],
+                "follow_up": [
+                    "Urine culture if infection suspected"
+                ]
+            }
+        },
+        "specific_gravity": {
+            "display_name": "Specific Gravity",
+            "aliases": [
+                "SG",
+                "Urine Specific Gravity"
+            ],
+            "type": "numeric",
+            "unit": "",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 1.005,
+                    "max": 1.030
+                }
+            },
+            "low": {
+                "meaning": "Urine concentration is lower than expected.",
+                "possible_causes": [
+                    "High fluid intake",
+                    "Reduced concentrating ability"
+                ],
+                "follow_up": [
+                    "Kidney function evaluation if persistent"
+                ]
+            },
+            "high": {
+                "meaning": "Urine is highly concentrated.",
+                "possible_causes": [
+                    "Dehydration",
+                    "Fluid loss"
+                ],
+                "follow_up": [
+                    "Hydration assessment"
+                ]
+            }
+        },
+        "protein": {
+            "display_name": "Urine Protein",
+            "aliases": [
+                "Protein",
+                "Urine Albumin"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative",
+                "absent"
+            ],
+            "abnormal_values": [
+                "trace",
+                "+",
+                "++",
+                "+++",
+                "positive"
+            ],
+            "positive": {
+                "meaning": "Protein detected in urine.",
+                "possible_causes": [
+                    "Kidney disease",
+                    "Urinary infection",
+                    "Temporary exercise-related changes"
+                ],
+                "follow_up": [
+                    "Repeat urine test",
+                    "Kidney function tests"
+                ]
+            }
+        },
+        "urine_glucose": {
+            "display_name": "Urine Glucose",
+            "aliases": [
+                "Glucose urine",
+                "Sugar urine"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative",
+                "absent"
+            ],
+            "abnormal_values": [
+                "positive",
+                "+",
+                "++",
+                "+++"
+            ],
+            "positive": {
+                "meaning": "Glucose detected in urine.",
+                "possible_causes": [
+                    "High blood glucose",
+                    "Diabetes mellitus"
+                ],
+                "follow_up": [
+                    "Blood glucose test",
+                    "HbA1c"
+                ]
+            }
+        },
+        "ketones": {
+            "display_name": "Ketones",
+            "aliases": [
+                "Ketone bodies",
+                "Urine Ketones"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative"
+            ],
+            "abnormal_values": [
+                "positive",
+                "trace",
+                "+",
+                "++",
+                "+++"
+            ],
+            "positive": {
+                "meaning": "Ketones are detected in urine.",
+                "possible_causes": [
+                    "Uncontrolled diabetes",
+                    "Fasting",
+                    "Low carbohydrate intake"
+                ],
+                "follow_up": [
+                    "Blood glucose check",
+                    "Clinical assessment"
+                ]
+            }
+        },
+        "urine_rbc": {
+            "display_name": "Urine Red Blood Cells",
+            "aliases": [
+                "RBC urine",
+                "Blood urine",
+                "Red cells"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "negative",
+                "0-2/hpf"
+            ],
+            "abnormal_values": [
+                "present",
+                "positive",
+                ">2/hpf"
+            ],
+            "positive": {
+                "meaning": "Red blood cells detected in urine.",
+                "possible_causes": [
+                    "Urinary tract infection",
+                    "Kidney stones",
+                    "Kidney or urinary tract conditions"
+                ],
+                "follow_up": [
+                    "Repeat urinalysis",
+                    "Urine culture if infection suspected"
+                ]
+            }
+        },
+        "urine_wbc": {
+            "display_name": "Urine White Blood Cells",
+            "aliases": [
+                "Pus Cells",
+                "WBC urine",
+                "Leukocytes"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "0-5/hpf",
+                "absent"
+            ],
+            "abnormal_values": [
+                "increased",
+                "many",
+                "present"
+            ],
+            "positive": {
+                "meaning": "Increased white cells detected in urine.",
+                "possible_causes": [
+                    "Urinary tract infection",
+                    "Inflammation"
+                ],
+                "follow_up": [
+                    "Urine culture",
+                    "Clinical evaluation"
+                ]
+            }
+        },
+        "urine_bilirubin": {
+            "display_name": "Urine Bilirubin",
+            "aliases": [
+                "Bilirubin urine"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative",
+                "absent"
+            ],
+            "abnormal_values": [
+                "positive",
+                "+"
+            ],
+            "positive": {
+                "meaning": "Bilirubin detected in urine.",
+                "possible_causes": [
+                    "Liver disease",
+                    "Bile flow obstruction"
+                ],
+                "follow_up": [
+                    "Liver function tests"
+                ]
+            }
+        },
+        "nitrites": {
+            "display_name": "Nitrites",
+            "aliases": [
+                "Nitrite"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative"
+            ],
+            "abnormal_values": [
+                "positive"
+            ],
+            "positive": {
+                "meaning": "Nitrites detected in urine.",
+                "possible_causes": [
+                    "Possible bacterial urinary tract infection"
+                ],
+                "follow_up": [
+                    "Urine culture"
+                ]
+            }
+        },
+        "leukocyte_esterase": {
+            "display_name": "Leukocyte Esterase",
+            "aliases": [
+                "LE",
+                "Leucocyte Esterase"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative"
+            ],
+            "abnormal_values": [
+                "positive",
+                "+",
+                "++",
+                "+++"
+            ],
+            "positive": {
+                "meaning": "White blood cell enzyme detected in urine.",
+                "possible_causes": [
+                    "Urinary tract infection",
+                    "Urinary inflammation"
+                ],
+                "follow_up": [
+                    "Urine microscopy",
+                    "Urine culture"
+                ]
+            }
+        },
+        "casts": {
+            "display_name": "Urinary Casts",
+            "aliases": [
+                "Casts",
+                "Urine casts"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "none seen"
+            ],
+            "abnormal_values": [
+                "present",
+                "granular",
+                "cellular"
+            ],
+            "positive": {
+                "meaning": "Casts detected in urine sediment.",
+                "possible_causes": [
+                    "Kidney inflammation",
+                    "Kidney tubular conditions"
+                ],
+                "follow_up": [
+                    "Kidney function tests"
+                ]
+            }
+        },
+        "crystals": {
+            "display_name": "Urine Crystals",
+            "aliases": [
+                "Crystals"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "none"
+            ],
+            "abnormal_values": [
+                "present"
+            ],
+            "positive": {
+                "meaning": "Crystals detected in urine.",
+                "possible_causes": [
+                    "Kidney stone tendency",
+                    "Urine concentration changes"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        },
+        "bacteria": {
+            "display_name": "Urine Bacteria",
+            "aliases": [
+                "Bacteria",
+                "Microorganisms"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "none seen"
+            ],
+            "abnormal_values": [
+                "present",
+                "many"
+            ],
+            "positive": {
+                "meaning": "Bacteria detected in urine.",
+                "possible_causes": [
+                    "Urinary tract infection",
+                    "Sample contamination"
+                ],
+                "follow_up": [
+                    "Urine culture"
+                ]
+            }
+        },
+        "urobilinogen": {
+            "display_name": "Urobilinogen",
+            "aliases": [
+                "Urobilinogen urine"
+            ],
+            "type": "numeric",
+            "unit": "mg/dL",
+            "sex_based": false,
+            "age_based": false,
+            "ranges": {
+                "standard": {
+                    "min": 0.1,
+                    "max": 1.0
+                }
+            },
+            "low": {
+                "meaning": "Low urobilinogen may occur with reduced bilirubin processing.",
+                "possible_causes": [
+                    "Bile flow problems"
+                ],
+                "follow_up": [
+                    "Liver evaluation if clinically indicated"
+                ]
+            },
+            "high": {
+                "meaning": "Urobilinogen is elevated.",
+                "possible_causes": [
+                    "Liver disease",
+                    "Increased red blood cell breakdown"
+                ],
+                "follow_up": [
+                    "Liver function tests"
+                ]
+            }
+        }
+    },
+    "stool": {
+        "occult_blood": {
+            "display_name": "Occult Blood",
+            "aliases": [
+                "FOBT",
+                "Fecal Occult Blood",
+                "Hidden Blood"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative",
+                "absent"
+            ],
+            "abnormal_values": [
+                "positive",
+                "detected"
+            ],
+            "positive": {
+                "meaning": "Hidden blood detected in stool.",
+                "possible_causes": [
+                    "Gastrointestinal bleeding",
+                    "Inflammation",
+                    "Polyps or other bowel conditions"
+                ],
+                "follow_up": [
+                    "Repeat stool test",
+                    "Medical evaluation"
+                ]
+            }
+        },
+        "stool_pus_cells": {
+            "display_name": "Stool Pus Cells",
+            "aliases": [
+                "Pus Cells Stool",
+                "Stool WBC"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "few"
+            ],
+            "abnormal_values": [
+                "many",
+                "increased"
+            ],
+            "positive": {
+                "meaning": "Increased inflammatory cells detected in stool.",
+                "possible_causes": [
+                    "Intestinal infection",
+                    "Bowel inflammation"
+                ],
+                "follow_up": [
+                    "Stool culture",
+                    "Clinical evaluation"
+                ]
+            }
+        },
+        "stool_rbc": {
+            "display_name": "Stool Red Blood Cells",
+            "aliases": [
+                "RBC Stool",
+                "Red Cells Stool"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent"
+            ],
+            "abnormal_values": [
+                "present"
+            ],
+            "positive": {
+                "meaning": "Red blood cells detected in stool.",
+                "possible_causes": [
+                    "Lower gastrointestinal bleeding",
+                    "Inflammation"
+                ],
+                "follow_up": [
+                    "Medical evaluation"
+                ]
+            }
+        },
+        "parasites_ova": {
+            "display_name": "Parasites and Ova",
+            "aliases": [
+                "Ova",
+                "Parasites",
+                "Ova and Parasites"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "not seen",
+                "absent"
+            ],
+            "abnormal_values": [
+                "seen",
+                "present"
+            ],
+            "positive": {
+                "meaning": "Parasites or eggs detected in stool.",
+                "possible_causes": [
+                    "Parasitic intestinal infection"
+                ],
+                "follow_up": [
+                    "Clinical evaluation",
+                    "Appropriate treatment assessment"
+                ]
+            }
+        },
+        "h_pylori": {
+            "display_name": "Helicobacter pylori",
+            "aliases": [
+                "H pylori",
+                "H. pylori antigen"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "negative"
+            ],
+            "abnormal_values": [
+                "positive"
+            ],
+            "positive": {
+                "meaning": "H. pylori detected.",
+                "possible_causes": [
+                    "Helicobacter pylori infection"
+                ],
+                "follow_up": [
+                    "Medical evaluation for eradication therapy"
+                ]
+            }
+        },
+        "fat_globules": {
+            "display_name": "Fat Globules",
+            "aliases": [
+                "Stool Fat",
+                "Fecal Fat"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "absent",
+                "few"
+            ],
+            "abnormal_values": [
+                "many",
+                "increased"
+            ],
+            "positive": {
+                "meaning": "Increased fat detected in stool.",
+                "possible_causes": [
+                    "Fat malabsorption",
+                    "Digestive enzyme problems"
+                ],
+                "follow_up": [
+                    "Gastrointestinal evaluation"
+                ]
+            }
+        },
+        "calprotectin": {
+            "display_name": "Fecal Calprotectin",
+            "aliases": [
+                "Calprotectin",
+                "Stool Calprotectin"
+            ],
+            "type": "numeric",
+            "unit": "ug/g",
+            "sex_based": false,
+            "age_based": true,
+            "ranges": {
+                "adult": {
+                    "min": 0,
+                    "max": 50
+                }
+            },
+            "low": {
+                "meaning": "Low calprotectin is usually considered normal.",
+                "possible_causes": [
+                    "Low intestinal inflammation"
+                ],
+                "follow_up": [
+                    "Usually none"
+                ]
+            },
+            "high": {
+                "meaning": "Calprotectin is elevated suggesting intestinal inflammation.",
+                "possible_causes": [
+                    "Inflammatory bowel conditions",
+                    "Intestinal infection"
+                ],
+                "follow_up": [
+                    "Gastroenterology evaluation"
+                ]
+            }
+        },
+        "consistency_color": {
+            "display_name": "Stool Consistency and Color",
+            "aliases": [
+                "Stool Appearance",
+                "Stool Color",
+                "Consistency"
+            ],
+            "type": "categorical",
+            "sex_based": false,
+            "age_based": false,
+            "normal_values": [
+                "brown",
+                "formed"
+            ],
+            "abnormal_values": [
+                "black",
+                "red",
+                "pale",
+                "watery"
+            ],
+            "positive": {
+                "meaning": "Stool appearance differs from usual findings.",
+                "possible_causes": [
+                    "Diet changes",
+                    "Bleeding",
+                    "Digestive conditions"
+                ],
+                "follow_up": [
+                    "Clinical correlation"
+                ]
+            }
+        }
+    }
+}

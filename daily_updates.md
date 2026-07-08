@@ -7,6 +7,10 @@ This log documents the daily progress, files created/modified, code explanations
 ## Today's Summary (Start: 14:40 UTC)
 We started tracking progress today after setting up the directory architecture, cleaning up MedQA raw files, and establishing dataset schemas. The user added the primary dataset formatting scripts, logger utilities, test scripts, and updated the `.gitignore`. We executed and verified all scripts successfully.
 
+Later in the session, the user implemented advanced preprocessing scripts: a boilerplate text analyzer, a cleaning script to scrub repetitive text structures, a deduplication utility, and a script to merge and split the dataset. These were run successfully and committed to the Git repository.
+
+---
+
 ### 1. Created Files & Code Explanations
 
 #### 📂 [scripts/format_datasets.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/format_datasets.py)
@@ -17,6 +21,32 @@ We started tracking progress today after setting up the directory architecture, 
   * `format_pubmedqa()`: Processes the `PQA labelled` parquet dataset. Combines the `final_decision` (yes/no/maybe) and the `long_answer` (clinical reasoning) to form a complete output response.
   * `format_medqa(limit=10000)`: Merges MedQA US `train.jsonl` and `dev.jsonl` files, formats the clinical vignettes with multiple-choice options (`A` to `E`), formats correct index output, shuffles, limits to 10k, and saves.
   * `format_medmcqa(limit=15000)`: Concatenates `MEDMCQs` parquet partitions, filters for single-choice questions with explanation, maps the zero-indexed answer to the option key, constructs multiple-choice inputs, and formats output with explanation.
+
+#### 📂 [scripts/analyze_boilerplate.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/analyze_boilerplate.py)
+* **Explanation**: Analyzes the generated `chatdoctor.jsonl` formatted dataset to identify the most common repetitive boilerplate sentences (like closing templates, greetings, signatures) by splitting outputs into sentences and counting their frequencies.
+* **Key Functions**:
+  * `split_sentences(text)`: Splits text into sentences by punctuation (`.!?`), strips spaces, lowercases, and filters out sentences under 15 characters.
+  * Main block: Iterates through the JSONL file, splits output fields into sentences, increments a `Counter` dictionary, and outputs the top 50 most repeated sentences.
+
+#### 📂 [scripts/clean_data.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/clean_data.py)
+* **Explanation**: Cleans the formatted datasets by removing common boilerplate structures, stripping HTML tags, normalized spacing, replacing broken unicode characters, and validating input/output sample lengths. Outputs cleaned files under `data/cleaned/`.
+* **Key Functions**:
+  * `normalize_text(text)`: Uses regex to strip HTML tags, normalizes whitespace to single spaces, and removes unicode replacement characters (`\uFFFD`).
+  * `remove_boilerplate(text)`: Runs case-insensitive regex replacements for a pre-defined list of common closing templates, greetings, and signatures (such as *"thanks for using chat doctor"*).
+  * `valid_sample(row)`: Filters out samples if they miss standard keys (`instruction`, `input`, `output`), have an input length < 10, an output length < 20, or a combined total string length > 8,000 characters.
+
+#### 📂 [scripts/deduplicate.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/deduplicate.py)
+* **Explanation**: Detects and removes duplicate question-answer pairs within each cleaned dataset file to prevent the model from overfitting on identical data. Outputs deduplicated files under `data/deduplicated/`.
+* **Key Functions**:
+  * `normalize_for_hash(text)`: Normalizes casing, whitespace, and strips text so minor differences in formatting don't bypass duplicate detection.
+  * `make_hash(row)`: Computes an MD5 checksum of the combined normalized input and output.
+
+#### 📂 [scripts/split_data.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/split_data.py)
+* **Explanation**: Merges all preprocessed (cleaned + deduplicated) datasets in memory, shuffles the collective set, and splits it into final train, validation, and test datasets saved under `data/final/`.
+* **Key Functions**:
+  * `load_all()`: Aggregates all deduplicated records into a single list.
+  * `save(data, name)`: Saves splits to JSON Lines files (`data/final/train.jsonl`, `data/final/validation.jsonl`, `data/final/test.jsonl`).
+  * Main block: Performs a 90% train, 5% validation, and 5% test split on the shuffled aggregate set.
 
 #### 📂 [utils/logger.py](file:///home/vasterk/ai-telemedicine-chatbot/utils/logger.py)
 * **Explanation**: Implements a global logging configuration for logging application events, data loading, warnings, and errors.
@@ -39,6 +69,9 @@ We started tracking progress today after setting up the directory architecture, 
   * Excludes ML checkpoints (`models/`, `*.safetensors`, `*.pt`, `*.gguf`).
   * Excludes logs, IDE structures, caches (`.cache/`, `.vscode/`, `logs/`, `*.log`).
 
+#### 📂 [knowledge_base/lab_ranges.json](file:///home/vasterk/ai-telemedicine-chatbot/knowledge_base/lab_ranges.json)
+* **Explanation**: Touched by the user to ensure it is correctly initialized.
+
 ---
 
 ### 3. Problems Faced & Solutions Found
@@ -52,13 +85,113 @@ We started tracking progress today after setting up the directory architecture, 
 * **Problem 3: Missing packages warnings**
   * *Description*: The formatting script completed successfully, but we needed to ensure logs were routed correctly.
   * *Solution*: Executed and validated the newly created logging setup, verifying that logs write to both stdout and `logs/app.log`.
+* **Problem 4: ChatDoctor dataset boilerplate**
+  * *Description*: ChatDoctor dataset contained numerous repetitive chatbot signatures, links, and templates (e.g., "thanks for using chat doctor", "let me know if i can assist you further") which degrade response quality during LLM fine-tuning.
+  * *Solution*: Created an analytical script (`analyze_boilerplate.py`) to discover the most frequent boilerplates, and implemented regex filters in a data cleaning script (`clean_data.py`) to scrub them out.
 
 ---
 
-### 4. Verification Results
-* Running `scripts/format_datasets.py` completed successfully:
-  * `chatdoctor.jsonl` saved: 70,000 records
-  * `pubmedqa.jsonl` saved: 1,000 records
-  * `medqa.jsonl` saved: 10,000 records
-  * `medmcqa.jsonl` saved: 15,000 records
-* Running `log.py` correctly printed logging messages in the desired format to stdout and stored them under `logs/app.log`.
+### 4. Git Actions & Commits
+* Committed all tracked files (including logs, configs, utility scripts, and preprocessing files) to the local repository.
+* **Commit details**:
+  * Message: `"Data cleaning and split"`
+  * Author: User
+  * Status: clean working tree, local branch ahead of `origin/main` by 2 commits.
+
+---
+
+### 5. Verification Results
+
+#### 📊 Formatting Stage (`format_datasets.py`)
+* `chatdoctor.jsonl` saved: 70,000 records
+* `pubmedqa.jsonl` saved: 1,000 records
+* `medqa.jsonl` saved: 10,000 records
+* `medmcqa.jsonl` saved: 15,000 records
+
+#### 📊 Cleaning Stage (`clean_data.py`)
+* `pubmedqa.jsonl`: kept 1000, removed 0
+* `medqa.jsonl`: kept 10000, removed 0
+* `medmcqa.jsonl`: kept 14995, removed 5 (due to length limits/empty fields)
+* `chatdoctor.jsonl`: kept 69999, removed 1 (due to length limits/empty fields)
+
+#### 📊 Deduplication Stage (`deduplicate.py`)
+* Verified 0 duplicate samples found across any file.
+
+#### 📊 Final Splitting Stage (`split_data.py`)
+* Shuffled and split the merged dataset (total of **95,994** samples):
+  * **train.jsonl**: 86,394 samples (90%)
+  * **validation.jsonl**: 4,800 samples (5%)
+  * **test.jsonl**: 4,800 samples (5%)
+
+---
+
+# Daily Updates - July 8, 2026
+
+This log documents the progress made on July 8, 2026, focusing on implementing the lab report analysis functionality, validating reference ranges, and testing the system with clinical samples.
+
+---
+
+## Today's Summary (Start: 11:50 UTC)
+Today, we initialized the laboratory analyzer tool and established database validation checks for reference ranges. The user populated the laboratory reference database (`knowledge_base/lab_ranges.json`) with 67 clinical markers across blood, urine, and stool tests. We added a parser-analyzer script, resolved key demographic-specific fallback issues, fixed redundant operations, and added robust parsing mechanisms for numeric inputs.
+
+---
+
+### 1. Created Files & Code Explanations
+
+#### 📂 [medical_tools/lab_analyzer.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/lab_analyzer.py)
+* **Explanation**: Parses and interprets patient lab result values by matching them against reference ranges defined in `knowledge_base/lab_ranges.json`. It handles demographic-specific ranges (by age/sex) and categorizes outputs into HIGH, LOW, NORMAL, ABNORMAL, or UNKNOWN statuses along with clinically relevant advice.
+* **Key Functions**:
+  * `find_marker(test_type, marker_name)`: Searches for a lab test marker under the specified category (case-insensitive) using its standard name or aliases to handle OCR spelling variations.
+  * `get_range(marker, age=None, sex=None)`: Resolves the reference range dynamically. It checks flags for age-based and sex-based variations and falls back gracefully (sex/age -> sex-based -> age-based -> standard -> first key) depending on demographic parameters provided.
+  * `analyze_numeric(marker, value, normal)`: Compares a numeric value against the resolved minimum and maximum bounds.
+  * `analyze_categorical(marker, value)`: Matches text-based findings (e.g., "+", "++", "negative") against expected normal and abnormal arrays.
+  * `analyze_lab(...)`: Coordinates the lookup, range resolving, numeric or categorical analysis, and packs metadata into the response.
+  * `analyze_report(...)`: Iterates over multiple tests in a panel to compute a summary count (normal, abnormal, unknown) and compile the detailed individual results.
+
+#### 📂 [scripts/validate_lab_json.py](file:///home/vasterk/ai-telemedicine-chatbot/scripts/validate_lab_json.py)
+* **Explanation**: A verification script that loads the clinical reference ranges JSON database and validates that every entry conforms to the schema rules.
+* **Key Functions**:
+  * Loops through all test types (`blood`, `urine`, `stool`) and ensures every marker includes required properties: `display_name`, `aliases`, `type`, `sex_based`, and `age_based`.
+
+---
+
+### 2. Modified Files & Explanations
+
+#### 📂 [knowledge_base/lab_ranges.json](file:///home/vasterk/ai-telemedicine-chatbot/knowledge_base/lab_ranges.json)
+* **Explanation**: Expanded from an empty object to a comprehensive medical resource with 67 markers. Standardized schemas were created for all tests, including blood panel counts (hemoglobin, WBC, platelets), liver enzymes, lipid profiles, urine values, and stool panel indicators (FOBT, fecal calprotectin, H. pylori, consistency, etc.).
+
+---
+
+### 3. Problems Faced & Solutions Found
+
+* **Problem 1: Lab Test Alias Mapping and OCR Variations**
+  * *Description*: Patients or OCR tools may input lab test names in various formats (e.g., "Hb", "HGB", "Hemoglobin", or varying case). If matches are exact, the system will fail to identify the marker.
+  * *Solution*: Implemented alias lists in `lab_ranges.json` and a case-insensitive check in `find_marker` that compares both the primary key and the aliases list.
+* **Problem 2: Demographic Variations in Reference Ranges**
+  * *Description*: Clinically, normal values for markers (e.g., hemoglobin or calprotectin) depend on sex and/or age.
+  * *Solution*: Structured reference ranges to allow nested dict configurations (`ranges: {male: {...}, female: {...}}` or `ranges: {adult: {...}}`). Added robust waterfall logic in `get_range` to query matching ranges dynamically and fall back gracefully if age/sex attributes are omitted.
+* **Problem 3: Redundant Function Invocation**
+  * *Description*: We noticed that `analyze_lab` had a copy-paste bug where `analyze_numeric` was called twice in succession, overwriting the `result` variable redundantly.
+  * *Solution*: Removed the duplicate call to optimize execution and keep code clean.
+* **Problem 4: Numeric Conversion Failures for Non-Numeric Inputs**
+  * *Description*: Passing non-numeric text inputs (e.g., "10 g/dL" instead of 10) to a numeric marker caused a `ValueError` in `float(value)` and crashed the analyzer.
+  * *Solution*: Implemented a `try-except ValueError` wrapper around the float conversion in `analyze_lab`, returning a structured error response gracefully instead of crashing.
+
+---
+
+### 4. Git Actions & Commits
+* None yet. Verified all files locally; files will be staged and committed upon session completion.
+
+---
+
+### 5. Verification Results
+
+#### 📊 Database Integrity Check (`validate_lab_json.py`)
+* Ran successfully and loaded **67** medical markers across blood, urine, and stool panels with zero missing schema fields.
+
+#### 📊 Parser-Analyzer Validation (`lab_analyzer.py`)
+* Verified execution against diverse test inputs:
+  * **LDL-C (Blood, Numeric, High)**: Flagged 180 mg/dL as HIGH against reference range (0-100 mg/dL) with causes and follow-ups.
+  * **Glucose (Blood, Numeric, Normal)**: Flagged 90 mg/dL as NORMAL against reference range (70-99 mg/dL).
+  * **Urine Protein (Urine, Categorical, Abnormal)**: Matched "++" to `abnormal_values` list, returning ABNORMAL status.
+  * **Report Summary**: Compiles panels (e.g., Hb, LDL-C, Glucose) yielding a JSON report summary with correct counts (`normal: 1`, `abnormal: 2`, `unknown: 0`).
