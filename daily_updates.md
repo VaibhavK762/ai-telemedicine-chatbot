@@ -195,3 +195,87 @@ Today, we initialized the laboratory analyzer tool and established database vali
   * **Glucose (Blood, Numeric, Normal)**: Flagged 90 mg/dL as NORMAL against reference range (70-99 mg/dL).
   * **Urine Protein (Urine, Categorical, Abnormal)**: Matched "++" to `abnormal_values` list, returning ABNORMAL status.
   * **Report Summary**: Compiles panels (e.g., Hb, LDL-C, Glucose) yielding a JSON report summary with correct counts (`normal: 1`, `abnormal: 2`, `unknown: 0`).
+
+---
+
+# Daily Updates - July 9, 2026
+
+This log documents the progress made on July 9, 2026, focusing on implementing PDF/image OCR extraction, text report parsing, integration of the diagnostic pipeline, and refinement of reference ranges.
+
+---
+
+## Today's Summary (Start: 12:00 UTC)
+Today, we built the core components of the lab report extraction and processing pipeline. We implemented a unified OCR extraction layer capable of retrieving text from digital PDFs and scanned images/PDFs. We then developed a rule-based parser that maps extracted text to laboratory markers and handles unit normalizations. Finally, we updated `knowledge_base/lab_ranges.json` to expand search aliases and fix formatting, and verified the complete workflow against sample reports.
+
+---
+
+### 1. Created Files & Code Explanations
+
+#### 📂 [medical_tools/ocr_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/ocr_extractor.py)
+* **Explanation**: Handles text extraction from multi-format input files (selectable PDFs, images, and scanned PDFs).
+* **Key Functions**:
+  * `extract_pdf_text(file_path)`: Uses `pdfplumber` to extract digital text from selectable PDFs page-by-page.
+  * `extract_image_text(file_path)`: Fallback method using PaddleOCR (`PaddleOCR`) to process images or scanned documents.
+  * `extract_report_text(file_path)`: Inspects file extension and routes appropriately, falling back to empty string (or PaddleOCR in later steps) when selectable PDF text extraction fails/returns empty.
+
+#### 📂 [medical_tools/report_parser.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/report_parser.py)
+* **Explanation**: Extracts clinical test names and their corresponding numeric/categorical values from OCR or raw text inputs.
+* **Key Functions**:
+  * `build_marker_lookup(test_type)`: Dynamically generates a case-insensitive map of primary marker names and their alias synonyms to map OCR text lines back to canonical DB keys.
+  * `extract_value(line, marker_alias)`: Extracts value matching categorical categories (e.g., negative, trace, positive, `+`, `++`) or falls back to using regex to isolate numeric readings after discarding the matched alias prefix.
+  * `normalize_units(marker, value, line)`: Normalizes unit differences (e.g., scale adjustment for WBC count < 100 or platelets count < 1000).
+  * `parse_report_text(text, test_type)`: Splits text into lines and compares each line against the alias lookup dictionary (sorted by length in descending order to avoid greedy substring matching) to output marker-value structures.
+
+#### 📂 [medical_tools/report_pipeline.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/report_pipeline.py)
+* **Explanation**: Serves as the main pipeline coordinator running the full lab report process.
+* **Key Functions**:
+  * `process_lab_report(text, test_type, age, sex)`: Connects text parsing (`parse_report_text`) with the clinical analyzer (`analyze_report`), outputting a consolidated JSON payload containing extracted test details and diagnostic analysis.
+
+#### 📂 [test_reports/](file:///home/vasterk/ai-telemedicine-chatbot/test_reports)
+* **Explanation**: Added a local test directory containing real-world sample reports (`blood_report.pdf` and `urine_report.pdf`) to verify extraction and analysis reliability.
+
+---
+
+### 2. Modified Files & Explanations
+
+#### 📂 [knowledge_base/lab_ranges.json](file:///home/vasterk/ai-telemedicine-chatbot/knowledge_base/lab_ranges.json)
+* **Explanation**: Enhanced reference range configurations and keyword mappings:
+  * Expanded alias sets for markers like `Platelets` (added "Platelet Count"), `MCV` (added "(MCV)", "Mean corpuscular volume"), `MCH` (added "(MCH)", "Mean corpuscular hemoglobin"), `MCHC` (added "(MCHC)", "Mean corpuscular hemoglobin concentration"), `Urine Protein` (added "Proteins", "Urine Protein", "Albumin"), `Urine Glucose` (added "Glucose", "Urine Glucose", "Sugar"), `Urine RBC` (added "RBC", "RBCs", "Red Blood Cells", "Urine RBC").
+  * Added additional normal/negative values mapping for Urine Glucose ("not detected") and Urine RBC ("nil", "none", "not seen").
+  * Converted `urine_wbc` from categorical to a numeric type under unit `/hpf` with standard normal range bounds `0` - `5` and corresponding clinical interpretation text.
+
+---
+
+### 3. Problems Faced & Solutions Found
+
+* **Problem 1: Selectable text vs scanned documents**
+  * *Description*: Laboratory PDFs can either be digitally selectable or scanned images. Standard text parsing fails on image-based documents.
+  * *Solution*: Implemented a fallback mechanism in `ocr_extractor.py` which detects if selectable text extraction returns empty or less than 50 characters, and routes the document to PaddleOCR to extract text visually.
+* **Problem 2: UnboundLocalError during line parsing**
+  * *Description*: The python pipeline crashed with `UnboundLocalError: cannot access local variable 'clean_line' where it is not associated with a value` in `parse_report_text` when iterating text strings.
+  * *Solution*: Fixed local scope and loop variables in `medical_tools/report_parser.py` to ensure `clean_line` is properly initialized for all parsed text branches.
+* **Problem 3: Greediness in short alias matches**
+  * *Description*: Short aliases like "U" or "Hb" could accidentally match substrings inside other words (e.g., "u" in "unit", or "hb" inside "g/dl").
+  * *Solution*: Refined parser regex to enforce boundary checks (`\b`) on aliases that are 3 characters or less, preventing incorrect marker matches.
+* **Problem 4: WBC and Platelet Unit Scales**
+  * *Description*: OCR text commonly displays WBC counts as 6.43 (meaning 6,430) and platelet counts as 251 (meaning 251,000). Comparing these directly against standard reference bounds (e.g., 4000-11000) causes incorrect "LOW" status diagnoses.
+  * *Solution*: Added a unit normalization layer (`normalize_units` in `report_parser.py`) which scales values up by 1,000 when WBC is < 100 or Platelets is < 1,000.
+
+---
+
+### 4. Git Actions & Commits
+* Verified files locally. Untracked files and modifications will be staged and committed.
+
+---
+
+### 5. Verification Results
+
+#### 📊 Pipeline Integration Execution (`report_pipeline.py`)
+* Ran the complete pipeline on `test_reports/blood_report.pdf` for a 46-year-old female:
+  * Extracted values:
+    * `hemoglobin`: 11.7 g/dL (LOW - Reference: 12.0 - 15.5)
+    * `hematocrit`: 33.02% (LOW - Reference: 36 - 44)
+    * `rbc_count`: 4.36 million/uL (NORMAL - Reference: 4.2 - 5.4)
+    * `wbc_count`: 6,430.0 cells/uL (NORMAL - Reference: 4000 - 11000)
+    * `platelets`: 251,000.0 cells/uL (NORMAL - Reference: 150000 - 450000)
+  * Successfully flagged low Hemoglobin and Hematocrit, producing the correct structured JSON report and clinical recommendations.

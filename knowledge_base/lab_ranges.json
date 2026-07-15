@@ -192,6 +192,7 @@
             "display_name": "Platelet Count",
             "aliases": [
                 "PLT",
+                "Platelet Count",
                 "Platelets",
                 "Thrombocyte Count"
             ],
@@ -237,7 +238,8 @@
             "display_name": "Mean Corpuscular Volume",
             "aliases": [
                 "MCV",
-                "Mean Cell Volume"
+                "(MCV)",
+                "Mean corpuscular volume"
             ],
             "type": "numeric",
             "unit": "fL",
@@ -276,7 +278,9 @@
         "mch": {
             "display_name": "Mean Corpuscular Hemoglobin",
             "aliases": [
-                "MCH"
+                "MCH",
+                "(MCH)",
+                "Mean corpuscular hemoglobin"
             ],
             "type": "numeric",
             "unit": "pg",
@@ -313,7 +317,9 @@
         "mchc": {
             "display_name": "Mean Corpuscular Hemoglobin Concentration",
             "aliases": [
-                "MCHC"
+                "MCHC",
+                "(MCHC)",
+                "Mean corpuscular hemoglobin concentration"
             ],
             "type": "numeric",
             "unit": "g/dL",
@@ -1917,7 +1923,9 @@
             "display_name": "Urine Protein",
             "aliases": [
                 "Protein",
-                "Urine Albumin"
+                "Proteins",
+                "Urine Protein",
+                "Albumin"
             ],
             "type": "categorical",
             "sex_based": false,
@@ -1949,7 +1957,9 @@
         "urine_glucose": {
             "display_name": "Urine Glucose",
             "aliases": [
-                "Glucose urine",
+                "Glucose",
+                "Urine Glucose",
+                "Sugar",
                 "Sugar urine"
             ],
             "type": "categorical",
@@ -1957,7 +1967,9 @@
             "age_based": false,
             "normal_values": [
                 "negative",
-                "absent"
+                "absent",
+                "nil",
+                "not detected"
             ],
             "abnormal_values": [
                 "positive",
@@ -2012,9 +2024,11 @@
         "urine_rbc": {
             "display_name": "Urine Red Blood Cells",
             "aliases": [
-                "RBC urine",
+                "RBC",
+                "RBCs",
+                "Red Blood Cells",
                 "Blood urine",
-                "Red cells"
+                "Urine RBC"
             ],
             "type": "categorical",
             "sex_based": false,
@@ -2022,6 +2036,9 @@
             "normal_values": [
                 "absent",
                 "negative",
+                "nil",
+                "none",
+                "not seen",
                 "0-2/hpf"
             ],
             "abnormal_values": [
@@ -2049,7 +2066,14 @@
                 "WBC urine",
                 "Leukocytes"
             ],
-            "type": "categorical",
+            "type": "numeric",
+            "unit": "/hpf",
+            "ranges": {
+                "standard": {
+                    "min": 0,
+                    "max": 5
+                }
+            },
             "sex_based": false,
             "age_based": false,
             "normal_values": [
@@ -2061,7 +2085,12 @@
                 "many",
                 "present"
             ],
-            "positive": {
+            "low": {
+                "meaning": "Low urine WBC count is usually normal.",
+                "possible_causes": [],
+                "follow_up": []
+            },
+            "high": {
                 "meaning": "Increased white cells detected in urine.",
                 "possible_causes": [
                     "Urinary tract infection",
