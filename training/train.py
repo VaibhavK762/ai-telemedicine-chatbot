@@ -139,7 +139,7 @@ def train():
         save_steps=SAVE_STEPS,
         eval_steps=EVAL_STEPS,
         eval_strategy="no",
-        save_strategy="steps",
+        save_strategy="epoch",
         save_total_limit=SAVE_TOTAL_LIMIT,
         fp16=True,
         logging_first_step=True,
@@ -149,9 +149,7 @@ def train():
         gradient_checkpointing=GRADIENT_CHECKPOINTING,
         max_grad_norm=MAX_GRAD_NORM,
         group_by_length=GROUP_BY_LENGTH,
-        load_best_model_at_end=True,
-        metric_for_best_model="eval_loss",
-        greater_is_better=False
+        load_best_model_at_end=False
     )
 
     # Use DataCollatorForSeq2Seq to handle pad collations dynamically
