@@ -1,0 +1,3 @@
+TSH 0.1 uIU/mL
+T3 2.1 ng/mL
+T4 14.5 ug/dL

@@ -1,0 +1,246 @@
+# LLM Telemedicine Architecture & Training Guide
+
+This guide provides an in-depth breakdown of our telemedicine chatbot configuration, LLM architectural patterns, quantization mechanics (BitsAndBytes NF4), model selection rationale, and the internal workings of modern LLMs like ChatGPT.
+
+---
+
+## 1. Config.py Parameter Deep-Dive
+
+Here is the explanation for every configuration parameter in [config.py](file:///home/vasterk/ai-telemedicine-chatbot/training/config.py), including its role, design rationale, resource implications, and when to modify it.
+
+### Model & Paths
+* **`BASE_MODEL_NAME = "BioMistral/BioMistral-7B"`**
+  * **Why Chosen:** A 7-billion parameter model pre-trained on PubMed/medical text. It inherits Mistral-7B's slide-window attention and high efficiency, while specialized on clinical vocabulary.
+  * **When to Change:** Switch to larger models (e.g., `BioMistral/BioMistral-13B` or `Llama-3-8B-Instruct`) if you have more VRAM (>16GB) and require stronger reasoning.
+* **`OUTPUT_DIR = "./adapters/biomistral-telemedicine"`**
+  * **Why Chosen:** Relative path to save trained PEFT LoRA adapters.
+* **`TRAIN_DATA_PATH` / `VAL_DATA_PATH` / `EVALUATION_SET_PATH`**
+  * **Why Chosen:** Point to curated, deduplicated training splits and the clinical evaluation suite.
+
+### Tokenizer Settings
+* **`MAX_SEQ_LENGTH = 512`**
+  * **Why Chosen:** Reduced from 1024 to accommodate the **RTX 3050 Laptop GPU (4GB VRAM)**. Sequence length scales memory quadratically with self-attention $O(N^2)$.
+  * **Impact of Increasing:**
+    * *Pros:* Captures longer multi-turn history and detailed patient reports without truncation.
+    * *Cons:* Triggers Out-of-Memory (OOM) errors and slows down training.
+  * **Impact of Decreasing:** Reduces memory usage dramatically, but risks truncating early dialog turns or long context.
+  * **When to Adjust:** Keep at `512` for local 4GB VRAM testing. If training on a cloud GPU (e.g., A100 or T4 with 16GB+), increase to `1024` or `2048` to support complex medical conversations.
+* **`PADDING_SIDE = "right"`**
+  * **Why Chosen:** Standard for Supervised Fine-Tuning (SFT) when using PyTorch's `DataCollatorForSeq2Seq` and causal masking.
+  * **Note:** During *inference*, left-padding is required because the model generates tokens to the right of the prompt. `inference.py` handles this.
+
+### 4-Bit Quantization (QLoRA)
+* **`LOAD_IN_4BIT = True`**
+  * **Why Chosen:** Mandatory for 4GB VRAM. Compresses the base model parameters from 16-bit (14GB) down to 4-bit (~4.1GB).
+* **`BNB_4BIT_QUANT_TYPE = "nf4"`**
+  * **Why Chosen:** **NormalFloat4** is an information-theoretically optimal quantization format for zero-mean normal distributions (which neural network weights typically follow). It outperforms standard 4-bit Float (`fp4`).
+* **`BNB_4BIT_USE_DOUBLE_QUANT = True`**
+  * **Why Chosen:** Quantizes the quantization constants (scales) themselves. Saves an extra 0.37 bits per parameter (~300MB on a 7B model).
+* **`BNB_4BIT_COMPUTE_DTYPE = torch.float16`**
+  * **Why Chosen:** Specifies the data type used during computation. Weights are dequantized to FP16 on-the-fly during active forward/backward passes.
+
+### LoRA Configuration
+* **`LORA_R = 16` (Rank)**
+  * **Why Chosen:** Determines the width of the low-rank update matrices. Rank 16 provides a balanced capacity to capture complex medical domain adapters without overfitting.
+  * **Increasing:** (e.g., 32 or 64) improves learning capacity but increases parameter size, training time, and memory overhead.
+  * **Decreasing:** (e.g., 8) saves memory but may underfit complex instructions.
+* **`LORA_ALPHA = 32` (Scaling factor)**
+  * **Why Chosen:** Set to $2 \times R$ to scale adapter weights. It acts as a learning rate multiplier for LoRA layers.
+* **`LORA_TARGET_MODULES = [...]`**
+  * **Why Chosen:** Targets all linear layers in the transformer block (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`). Adapting all layers is proven to maximize accuracy and approximate full-parameter fine-tuning.
+
+### Training Hyperparameters
+* **`BATCH_SIZE = 1`**
+  * **Why Chosen:** Minimized to prevent OOM errors on 4GB VRAM.
+  * **Increasing:** Increases hardware utilization and stabilizes training gradients, but requires more VRAM.
+  * **Decreasing:** Already at 1 (minimum).
+* **`GRADIENT_ACCUMULATION_STEPS = 16`**
+  * **Why Chosen:** Recreates an effective batch size of $1 \times 16 = 16$ samples. Gradients are accumulated over 16 micro-steps before triggering an optimizer update.
+  * **When to Adjust:** Increase if you decrease `BATCH_SIZE` to keep training stable; decrease if you have a high `BATCH_SIZE` to save time.
+* **`LEARNING_RATE = 2e-4`**
+  * **Why Chosen:** Empirical sweet spot for QLoRA.
+  * **Too High:** Model weights diverge (training loss becomes NaN).
+  * **Too Low:** Model fails to adapt to training data.
+* **`OPTIMIZER = "paged_adamw_8bit"`**
+  * **Why Chosen:** Pages optimizer states to system RAM when VRAM is full, preventing crashes during peak backpropagation passes.
+* **`NUM_TRAIN_EPOCHS = 2`**
+  * **Why Chosen:** With ~86k dataset entries, 2 epochs allows the model to fully generalize over the dataset without overfitting.
+
+### Quality & Efficiency Additions
+* **`GRADIENT_CHECKPOINTING = True`**
+  * **Why Chosen:** Trades compute time for memory. Instead of storing all intermediate activation tensors for backward passes, it recalculates them on-the-fly, reducing VRAM usage by up to 60%.
+* **`MAX_GRAD_NORM = 0.3`**
+  * **Why Chosen:** Clips gradients to prevent exploding gradient issues.
+* **`GROUP_BY_LENGTH = True`**
+  * **Why Chosen:** Groups inputs of similar lengths in the same batch, minimizing padding tokens and speeding up training by up to 20-30%.
+
+---
+
+## 2. Transformer Architectures: The Three Families
+
+LLMs are built on the Transformer architecture (Vaswani et al., 2017) using Self-Attention. They are categorized based on their structural configuration:
+
+```mermaid
+graph TD
+    A[Transformer Base Architecture] --> B["Encoder-Only (Auto-encoding)"]
+    A --> C["Decoder-Only (Auto-regressive)"]
+    A --> D["Encoder-Decoder (Sequence-to-Sequence)"]
+    
+    B --> B1["BERT, RoBERTa"]
+    C --> C1["GPT, Mistral, Llama"]
+    D --> D1["T5, BART"]
+```
+
+### A. Encoder-Only Models (Auto-encoding)
+* **Mechanism:** Processes bidirectional context. Every token can attend to every other token in the sequence (both left and right).
+* **Famous Models:** BERT, RoBERTa, DeBERTa, ClinicalBERT.
+* **Use Cases:** Classification, Named Entity Recognition (NER), Sentiment Analysis, Clinical extraction.
+* **Why not used for chatbots:** They cannot generate coherent multi-word text sequences because they predict masked tokens in the middle of a text, rather than predicting the next token.
+
+### B. Decoder-Only Models (Auto-regressive)
+* **Mechanism:** Processes unidirectional context. A token can only attend to past tokens (tokens to its left). This is enforced by a **Causal Mask** in the self-attention calculation.
+* **Famous Models:** GPT-4, Llama-3, Mistral-7B, BioMistral-7B.
+* **Use Cases:** Conversational AI, open-ended text generation, creative writing, code generation.
+* **Rationale for our Bot:** Telemedicine conversation requires flexible, generative natural language replies. Auto-regressive decoder models excel here.
+
+### C. Encoder-Decoder Models (Seq2Seq)
+* **Mechanism:** An encoder processes the entire input bidirectionally to create a rich representation, then passes this hidden state to a decoder that generates output autoregressively.
+* **Famous Models:** T5 (Text-to-Text Transfer Transformer), BART.
+* **Use Cases:** Machine Translation, Summarization (e.g., patient notes summarization), Question Answering.
+
+---
+
+## 3. Rationale: Why BioMistral-7B & QLoRA SFT?
+
+For a clinical chatbot, we chose a **hybrid architectural separation**:
+
+```
+                  User Input
+                      │
+           ┌──────────┴──────────┐
+           ▼                     ▼
+Conversational SFT LLM    Report Parsing Pipeline
+  (BioMistral-7B QLoRA)      (Regex / LLM Extractor)
+           │                     │
+           │                     ▼
+           │              Rule-Based Medical Engine
+           │               (Deterministic Analysis)
+           │                     │
+           └──────────┬──────────┘
+                      ▼
+               Final Response
+```
+
+### Why separated instead of training a single model to do everything?
+1. **Determinism:** Clinical report interpretations (e.g., hemoglobin = 8 g/dL means anemia) must be 100% deterministic. LLMs suffer from hallucinations. We parse metrics via regex and validate using a python rule engine to eliminate errors.
+2. **Efficiency:** Retaining the conversational flow in a small 7B model requires SFT. Putting tools in a separate framework keeps the model lightweight and executable on laptop hardware.
+
+### Why QLoRA (Quantized Low-Rank Adaptation)?
+Traditional fine-tuning adapts all 7 billion parameters, requiring **>28GB VRAM** for training. QLoRA achieves high-quality adaptation by:
+1. **Freezing** the 4-bit base model.
+2. Injecting small trainable parameter adapters (LoRA) into the attention and MLP weights.
+3. Quantizing weights to **NF4** (NormalFloat 4) to shrink memory requirements to **4.5GB VRAM**, enabling local execution.
+
+---
+
+## 4. BitsAndBytes Quantization Deep-Dive
+
+### Mathematical Formulation of Quantization
+Standard quantization maps high-precision floating-point numbers ($x \in \mathbb{R}$) to a low-bit integer ($q \in \mathbb{Z}$):
+
+$$q = \text{round}\left( \frac{x}{S} \right) + Z$$
+
+Where:
+* $S$ is the scale factor: $S = \frac{\max(x) - \min(x)}{2^B - 1}$
+* $Z$ is the zero-point offset.
+* $B$ is the bit width (e.g., 4 or 8).
+
+### The NormalFloat 4 (NF4) Quantiles
+Since neural network weights usually follow a zero-mean normal distribution:
+
+$$W \sim \mathcal{N}(0, \sigma^2)$$
+
+Standard uniform quantization allocates equal step sizes, wasting precision on tail values. **NF4** solves this by using quantile quantization. It divides the normal distribution CDF into 16 bins, each having equal probability.
+
+The 16 discrete quantization levels $q_i$ for $i \in [0, 15]$ are derived from the quantiles of a standard normal distribution $\mathcal{N}(0, 1)$:
+
+$$q_i = \frac{1}{2} \left( Q_X\left(\frac{i}{2^k}\right) + Q_X\left(\frac{i+1}{2^k}\right) \right)$$
+
+Normalized to the range $[-1, 1]$, the resulting NF4 quantization grid is exactly:
+`[-1.0, -0.6961917, -0.525073, -0.3949175, -0.28444138, -0.18477343, -0.09105026, 0.0, 0.07958029, 0.1609302, 0.2461123, 0.33791524, 0.4407079, 0.562617, 0.7229568, 1.0]`
+
+> [!NOTE]
+> Notice $0.0$ is represented exactly, which is critical for masking and zero-padding inside LLMs.
+
+### Block-wise Quantization & Double Quantization
+To prevent outlier values from shrinking the dynamic range of entire layers, weights are quantized in blocks of size $B_w = 64$.
+Each block gets its own scale factor $S_i$.
+
+**Double Quantization (DQ)** quantizes these scales $S_i$ themselves in blocks of $B_s = 256$ using 8-bit floats. This reduces the scale memory footprint:
+
+$$\text{FP32 scale footprint} = \frac{32 \text{ bits}}{64 \text{ weights}} = 0.5 \text{ bits/weight}$$
+
+$$\text{Double Quantization footprint} = \frac{8 \text{ bits}}{64 \text{ weights}} + \frac{32 \text{ bits}}{64 \times 256 \text{ weights}} \approx 0.127 \text{ bits/weight}$$
+
+This saves ~0.37 bits/weight, translating to **~300MB VRAM** saved for a 7B parameter model.
+
+### Dequantization Formula During Forward Pass
+During computation, the weights are dequantized to FP16 to run matrix multiplication:
+
+$$W_{\text{FP16}} = q_{\text{NF4}}(W) \times S_i$$
+
+```python
+# BitsAndBytes under-the-hood implementation logic
+import torch
+
+def dequantize_blockwise(quantized_weights, scales_fp8, double_scales_fp32):
+    # 1. Dequantize FP8 Scales back to FP32 using the double scale factor
+    scales_fp32 = scales_fp8.to(torch.float32) * double_scales_fp32
+    
+    # 2. Dequantize weight matrix from NF4 indices to FP16
+    unquantized_weights = lookup_nf4_table(quantized_weights) * scales_fp32
+    return unquantized_weights.to(torch.float16)
+```
+
+---
+
+## 5. How ChatGPT Works
+
+ChatGPT is trained using the **RLHF** pipeline (Reinforcement Learning from Human Feedback), which involves three stages:
+
+```mermaid
+graph TD
+    Stage1[Stage 1: Pre-training] --> Stage2[Stage 2: Supervised Fine-Tuning]
+    Stage2 --> Stage3["Stage 3: RLHF (PPO/DPO)"]
+    
+    Stage1 --> S1Info["Base LLM learns grammar, patterns, facts from raw internet corpus."]
+    Stage2 --> S2Info["Instruction LLM learns how to respond as a helpful assistant using high-quality Q&A data."]
+    Stage3 --> S3Info["Alignment LLM adapts to human preferences, avoiding bias, falsehoods, and danger."]
+```
+
+### Stage 1: Pre-training (Causal Language Modeling)
+* **Goal:** Train the base model to predict the next token given a sequence.
+* **Loss Function:** Cross-Entropy Loss:
+  
+  $$\mathcal{L} = -\sum_{i=1}^{T} \log P(x_i \mid x_{<i})$$
+
+* **Outcome:** The model gains raw vocabulary, grammar, reading comprehension, and world facts, but behaves like an autocomplete engine.
+
+### Stage 2: Supervised Fine-Tuning (SFT)
+* **Goal:** Teach the model how to act like an assistant.
+* **Method:** Human annotators write prompts and target responses. The model is trained on these pairs using causal language modeling, but backpropagation loss is masked on the user prompt (only calculating loss on the assistant response).
+* **Outcome:** The model learns conversation structures, formatting, and standard instructions.
+
+### Stage 3: RLHF (Reward Modeling & PPO)
+To align the model with human guidelines (Helpful, Honest, Harmless):
+1. **Reward Model (RM) Training:** The model generates multiple responses to a prompt. Humans rank these responses from best to worst. A separate Reward Model is trained to output a scalar score $R(x, y)$ reflecting human preference.
+2. **Proximal Policy Optimization (PPO):** The SFT model is updated using reinforcement learning to maximize the Reward Model score while maintaining a constraint (KL divergence) to prevent the policy from shifting too far from the original SFT distribution:
+   
+   $$\text{Objective}(\theta) = \mathbb{E}_{(x,y)\sim D} \left[ R_\psi(x, y) - \beta D_{\text{KL}}\left(\pi_\theta(y \mid x) \parallel \pi_{\text{SFT}}(y \mid x)\right) \right]$$
+
+### Modern Alternative: Direct Preference Optimization (DPO)
+Rather than training a separate Reward Model and using unstable reinforcement learning (PPO), DPO directly optimizes the policy model on pairwise preference data (winning response $y_w$ vs. losing response $y_l$) with a closed-form objective:
+
+$$\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l)} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)} - \beta \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)} \right) \right]$$
+
+This mathematical shortcut directly aligns the conversational model using simple binary cross-entropy.

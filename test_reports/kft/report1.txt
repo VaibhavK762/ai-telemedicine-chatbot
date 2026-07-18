@@ -1,0 +1,6 @@
+Creatinine 0.9 mg/dL
+BUN 12 mg/dL
+eGFR 95 mL/min/1.73m2
+Uric Acid 5.5 mg/dL
+Sodium 140 mEq/L
+Potassium 4.2 mEq/L

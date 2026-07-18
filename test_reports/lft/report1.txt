@@ -1,0 +1,7 @@
+ALT 25 U/L
+AST 30 U/L
+Alkaline Phosphatase 80 U/L
+Bilirubin Total 0.8 mg/dL
+Bilirubin Direct 0.2 mg/dL
+Albumin 4.2 g/dL
+GGT 20 U/L

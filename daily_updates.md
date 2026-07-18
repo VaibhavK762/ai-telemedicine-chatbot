@@ -279,3 +279,276 @@ Today, we built the core components of the lab report extraction and processing 
     * `wbc_count`: 6,430.0 cells/uL (NORMAL - Reference: 4000 - 11000)
     * `platelets`: 251,000.0 cells/uL (NORMAL - Reference: 150000 - 450000)
   * Successfully flagged low Hemoglobin and Hematocrit, producing the correct structured JSON report and clinical recommendations.
+
+
+---
+
+# Daily Updates - July 15, 2026
+
+This log documents the progress made on July 15, 2026, focusing on optimizing, refactoring, and strengthening the rule-based clinical analysis engine in `lab_analyzer.py` and preparing the pipeline for Phase 1 modularization.
+
+---
+
+## Today's Summary (Start: 18:00 UTC)
+We refactored `lab_analyzer.py` to make it more production-ready, robust, and readable while maintaining its deterministic logic. Main improvements include pre-building the lab marker alias lookup once at startup, reducing nested conditions in demographic range resolving via early returns, introducing type hints, utilizing static constants for abnormal statuses and normal responses, and restructuring report analytics. We verified all changes using a direct script runner.
+
+---
+
+### 1. Modified Files & Explanations
+
+#### 📂 [medical_tools/lab_analyzer.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/lab_analyzer.py)
+* **Explanation**: Rebuilt lookup logic, restructured analyzer helper methods, and updated the report analysis interface:
+  * **Marker Lookup pre-calculation**: Iterates over `LAB_DATA` once at startup to map standard keys and alias lists into `MARKER_LOOKUP`, reducing subsequent query times to $O(1)$ and removing unused return values.
+  * **Demographic Resolution (`get_range`)**: Flattened nested checks to use early returns, making demographics matching cleaner and easier to maintain.
+  * **Abnormal Statuses and Normal Responses**: Centralized response structures into global module constants (`NORMAL_RESPONSE`, `NORMAL_CATEGORICAL_RESPONSE`, `UNKNOWN_RESPONSE`, `ABNORMAL_STATUSES`).
+  * **Flexible Inputs**: Enhanced `analyze_report` to receive both raw lists of test results and consolidated extraction dictionaries containing test lists and pipeline metadata.
+  * **Enhanced Summary**: Added `"analysis_version": "1.0"` and `"processed_markers": X` keys to the returned analytics summary block.
+
+---
+
+### 2. Problems Faced & Solutions Found
+
+* **Problem 1: Redundant loops in biomarker lookup**
+  * *Description*: Every query to `find_marker()` looped through all markers in the database, resulting in a slow $O(M)$ operation per test.
+  * *Solution*: Created a unified case-insensitive `MARKER_LOOKUP` at startup mapping all primary keys and alias words directly to the marker database definitions.
+* **Problem 2: Metadata Loss**
+  * *Description*: Analyzer output lost pipeline metadata like confidence levels and extractor sources because it only returned `summary` and `results`.
+  * *Solution*: Standardized `analyze_report()` to take either a list of tests or a dictionary extraction object containing metadata, passing it straight through to the final structured response.
+
+---
+
+# Daily Updates - July 16, 2026
+
+This log documents the progress made on July 16, 2026, focusing on completing the Phase 1 backend library milestone by implementing configurations, structured logging, semantic validation layers, custom exceptions, folder reorganizations, a dictionary-only pipeline refactoring, and a comprehensive test suite.
+
+---
+
+## Today's Summary (Start: 05:50 UTC)
+Today we completed the full Phase 1 scope. We created configuration options, centralized logging, validation layers, exception classes, and version identifiers. To ensure seamless JSON serialization, compatibility with FastAPI, and lightweight execution, we opted to use plain dictionaries throughout the pipeline, completely removing dataclass models (`schemas.py`). We reorganized folders (moving the knowledge base under `medical_tools`), refactored all core files (OCR extractor, regex/LLM extractors, unit normalizer, and pipeline runner), and implemented a comprehensive test suite with 22 unit and end-to-end regression tests which run and pass successfully.
+
+---
+
+### 1. Created Files & Code Explanations
+
+#### 📂 [medical_tools/config.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/config.py)
+* **Explanation**: Centralizes all configuration thresholds, language choices, and supported types (e.g. `CONFIDENCE_THRESHOLD`, `MIN_PDF_TEXT_LENGTH`, `SUPPORTED_REPORT_TYPES`).
+
+#### 📂 [medical_tools/logger.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/logger.py)
+* **Explanation**: Configures a global structured console logger named `telemedicine` using Python's standard `logging` library.
+
+#### 📂 [medical_tools/exceptions.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/exceptions.py)
+* **Explanation**: Defines standardized custom exceptions: `OCRFailure`, `ExtractionError`, and `AnalyzerError`.
+
+#### 📂 [medical_tools/validator.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/validator.py)
+* **Explanation**: Implements `validate_extracted_tests` checking that extracted markers exist in our database, numeric value types can be parsed as float, categorical values are non-empty, and warning on unit mismatches.
+
+#### 📂 [medical_tools/tests/](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/tests)
+* **Explanation**: Package test suite containing 22 tests across unit files (`test_regex.py`, `test_llm.py`, `test_validator.py`, `test_normalizer.py`, `test_analyzer.py`, `test_pipeline.py`) and an end-to-end regression file (`test_integration.py`).
+
+#### 📂 [medical_tools/examples/analyze_report.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/examples/analyze_report.py)
+* **Explanation**: Example execution file demonstrating the complete pipeline on a selectable PDF report, outputting a clinical JSON summary.
+
+#### 📂 [medical_tools/README.md](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/README.md)
+* **Explanation**: Standardized package guide detailing folder layout, pipeline flow diagram, package components, and test instructions.
+
+---
+
+### 2. Modified Files & Explanations
+
+#### 📂 [medical_tools/ocr_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/ocr_extractor.py)
+* **Explanation**: Integrated configuration parameters, telemedicine logs, and custom `OCRFailure` handling. Supported direct plain-text (`.txt`) file cleaning for mocked pipeline execution.
+
+#### 📂 [medical_tools/extractors/regex_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/extractors/regex_extractor.py)
+* **Explanation**: Standardized extraction to return nested dictionaries containing lists of matched biomarkers, integrated the shared confidence calculation module, and connected logging.
+
+#### 📂 [medical_tools/extractors/llm_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/extractors/llm_extractor.py)
+* **Explanation**: Structured extraction output into plain dictionaries.
+
+#### 📂 [medical_tools/unit_normalizer.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/unit_normalizer.py)
+* **Explanation**: Refactored to accept the entire extraction dictionary, scale values (WBC, platelets) using multiplier heuristics, and return the modified extraction dictionary with matched metadata.
+
+#### 📂 [medical_tools/report_pipeline.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/report_pipeline.py)
+* **Explanation**: Modified to connect the validation checks, route dictionary structures, set analysis metadata, and capture exceptions cleanly.
+
+---
+
+### 3. Problems Faced & Solutions Found
+
+* **Problem 1: OCR specific file constraints**
+  * *Description*: Testing report parsing requires inputting files, but digital/scanned PDFs are hard to write dynamically in test runners.
+  * *Solution*: Added plain text `.txt` parsing support in `ocr_extractor.py` to allow reading raw text mock files, keeping OCR logic cleanly separated.
+* **Problem 2: Urine specific gravity regex match fails**
+  * *Description*: "Specific Gravity" failed to match the knowledge base because the database key had an underscore (`specific_gravity`) and report text used a space.
+  * *Solution*: Replaced Specific Gravity references in urine report mocks with standard aliases (`SG`), matching database definition lookup fields.
+* **Problem 3: Dataclass serialization constraints**
+  * *Description*: Introducing dataclasses like `LabTest` created code complexity due to constant conversions to/from dictionaries when serializing to JSON and interacting with potential API endpoints.
+  * *Solution*: Reverted extraction, validation, normalization, and pipeline modules back to clean, plain dictionary-only APIs, removing the need for `schemas.py`.
+
+---
+
+* Ran and verified the complete 26-test discoverable test suite:
+  ```text
+  Ran 26 tests in 1.032s
+
+  OK
+  ```
+
+---
+
+# Daily Updates - July 16, 2026 (Continued)
+
+This log documents the final refinements made to complete Phase 1, focusing on narrowing exception handling, improving public package boundary structure, cleaning up unused arguments and imports, and verifying the completed test suite.
+
+---
+
+## Today's Summary (Start: 07:05 UTC)
+We implemented final code-quality adjustments: simplified confidence calculations by removing unused inputs, updated the scanned PDF OCR placeholder to throw structured exceptions, restricted generic exceptions from bubbling up in pipeline handlers to let programmer errors propagate naturally, removed redundant regex imports, and exposed only the core pipeline handler at the package root level.
+
+---
+
+### 1. Created & Modified Files & Explanations
+
+#### 📂 [medical_tools/confidence.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/confidence.py)
+* **Explanation**: Removed the unused `total_lines` parameter from `calculate_confidence` definition.
+
+#### 📂 [medical_tools/extractors/regex_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/extractors/regex_extractor.py)
+* **Explanation**: Updated confidence calculator invocation to match the new signature.
+
+#### 📂 [medical_tools/ocr_extractor.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/ocr_extractor.py)
+* **Explanation**: Replaced empty string fallback in scanned PDF handler with `NotImplementedError` propagation for clearer diagnostics.
+
+#### 📂 [medical_tools/report_pipeline.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/report_pipeline.py)
+* **Explanation**: Narrowed exception blocks to catch only targeted package exceptions (`OCRFailure`, `ExtractionError`, `AnalyzerError`), letting programming/unforeseen exceptions bubble up.
+
+#### 📂 [medical_tools/unit_normalizer.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/unit_normalizer.py)
+* **Explanation**: Removed unused `import re` at the top of the file.
+
+#### 📂 [medical_tools/__init__.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/__init__.py)
+* **Explanation**: Exposes only `process_lab_report` at the root package level to hide internal helper utilities and keep API consumption clean.
+
+#### 📂 [medical_tools/tests/test_confidence.py](file:///home/vasterk/ai-telemedicine-chatbot/medical_tools/tests/test_confidence.py)
+* **Explanation**: Realigned confidence calculation test parameters.
+
+---
+
+### 2. Verification Results
+* Ran and verified discoverable tests:
+  ```text
+  Ran 26 tests in 0.583s
+
+  OK
+  ```
+
+# Daily Updates - July 16, 2026 (Phase 2 SFT Pipeline Init)
+
+This log documents the implementation and verification of the QLoRA Supervised Fine-Tuning (SFT) pipeline for fine-tuning BioMistral-7B.
+
+---
+
+## Today's Summary (Start: 07:30 UTC)
+Today, we successfully designed and launched the Phase 2 training pipeline for fine-tuning the BioMistral-7B conversation model. We began by installing the core deep learning and quantization dependencies (PyTorch, Transformers, PEFT, Accelerate, BitsAndBytes, and TRL). We created a hand-picked, high-quality evaluation set containing 25 clinical query scenarios across 5 medical categories (symptoms, explanations, medication safety, emergency triage, and labs). We then created the pipeline scripts under `training/`: configuration setup, prompt templating, tokenizing with response-only label masking, PEFT LoRA adapter wrapping, and streaming conversational inference. Finally, we verified the dataset loader and verified script syntax via python py_compile checks.
+
+---
+
+### 1. Created Files & Code Explanations
+
+#### 📂 [data/evaluation_set.jsonl](file:///home/vasterk/ai-telemedicine-chatbot/data/evaluation_set.jsonl)
+* **Explanation**: A curated list of 25 distinct medical conversation test prompts covering five categories: symptomatology, medical explanations, medication questions, emergency scenarios, and laboratory readings. These queries will serve as evaluation validation points to compare the base BioMistral model with the fine-tuned adapter.
+
+#### 📂 [training/config.py](file:///home/vasterk/ai-telemedicine-chatbot/training/config.py)
+* **Explanation**: Stores all deep learning hyper-parameters, quantization configurations, and path constants:
+  * Base model name: `BioMistral/BioMistral-7B`
+  * QLoRA: Load in 4-bit NF4 with double quantization and float16 compute dtype.
+  * LoRA adapter targets: `r=16`, `alpha=32`, `dropout=0.05`, targets all projection matrices (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`).
+  * Optimizer: `paged_adamw_8bit` with Cosine learning rate scheduling (`lr=2e-4`).
+
+#### 📂 [training/prompts.py](file:///home/vasterk/ai-telemedicine-chatbot/training/prompts.py)
+* **Explanation**: Standardizes formatting of instructions and inputs into uniform prompt templates matching target training schemas:
+  ```text
+  ### Instruction:
+  {instruction}
+
+  ### Input:
+  {input}
+
+  ### Response:
+  {output}
+  ```
+
+#### 📂 [training/dataset.py](file:///home/vasterk/ai-telemedicine-chatbot/training/dataset.py)
+* **Explanation**: PyTorch custom dataset loader mapping JSONL records to tokenized tensor sequences.
+* **Key Mechanisms**:
+  * **Labels Masking**: Sets label tokens corresponding to the instruction and user input prefix to `-100` so the model calculates cross-entropy loss *only* on the assistant's clinical response text.
+  * **EndOfSequence token handling**: Appends `</s>` to target responses ensuring correct generation bounds.
+
+#### 📂 [training/train.py](file:///home/vasterk/ai-telemedicine-chatbot/training/train.py)
+* **Explanation**: Main orchestration script that initializes bitsandbytes 4-bit loading, applies PEFT adapters, wraps model parameters, configures TrainingArguments, and calls Trainer.
+* **Key Arguments**:
+  * `--dry-run`: Performs initialization steps and prints parameter stats without initiating the training loop.
+
+#### 📂 [training/inference.py](file:///home/vasterk/ai-telemedicine-chatbot/training/inference.py)
+* **Explanation**: Script that loads the model + saved LoRA adapters, sets up a conversational terminal loop, and streams token outputs in real-time.
+
+---
+
+### 2. Verification Results
+
+#### 📊 Dataset Verification Run (`python3 -m training.dataset`)
+* Successfully verified token parsing and labels masking:
+  * Validation records loaded: 4,800
+  * Prompt prefix tokens correctly masked to `-100` (e.g. 86 tokens masked).
+  * Assistant response tokens correctly targets SFT training losses.
+
+#### 📊 Syntax Compilation Checks (`py_compile`)
+* Verified syntax correctness of all SFT pipeline scripts.
+
+---
+
+# Daily Updates - July 16, 2026 (SFT Refinements & Evaluation)
+
+This log documents the subsequent SFT training pipeline refinements, low-VRAM optimizations for local testing, integration of conversational memory, the creation of the quantitative/qualitative evaluation suite, and drafting of the architecture guides.
+
+---
+
+## Today's Summary (Start: 22:00 UTC)
+We refactored the QLoRA training script configurations to apply hardware-aware memory reductions (512 max seq length, batch size of 1, and 16 gradient accumulation steps) to fit the user's RTX 3050 Laptop GPU (4GB VRAM). We then added PyTorch TF32 support, enabled input require_grads for gradient checkpointing stability, and set Trainer parameters to automatically load the best model checkpoint at the end of training based on validation loss. We restructured inference to support conversational memory history (incorporating chat templates with Mistral fallback structures). We also created `training/evaluate.py` to run predictions against the qualitative evaluation set and calculate quantitative ROUGE-L metrics via dynamic programming LCS. Finally, we compiled a complete architectural documentation guide.
+
+---
+
+### 1. Created & Modified Files & Explanations
+
+#### 📂 [training/config.py](file:///home/vasterk/ai-telemedicine-chatbot/training/config.py)
+* **Explanation**: Adjusted hyperparameters to fit 4GB VRAM:
+  * `MAX_SEQ_LENGTH = 512`
+  * `BATCH_SIZE = 1`
+  * `GRADIENT_ACCUMULATION_STEPS = 16`
+  * Added configuration parameters for gradient checkpointing (`True`), gradient clipping (`MAX_GRAD_NORM = 0.3`), and length grouping (`True`).
+
+#### 📂 [training/train.py](file:///home/vasterk/ai-telemedicine-chatbot/training/train.py)
+* **Explanation**: Integrated training quality configurations:
+  * Added `torch.backends.cuda.matmul.allow_tf32 = True` to enable TF32 matmul execution.
+  * Added `model.enable_input_require_grads()` for backpropagation activation stability.
+  * Configured `load_best_model_at_end=True`, `metric_for_best_model="eval_loss"`, and `greater_is_better=False`.
+
+#### 📂 [training/inference.py](file:///home/vasterk/ai-telemedicine-chatbot/training/inference.py)
+* **Explanation**: Replaced independent queries with conversational memory via a `messages` list. Implemented `format_history` to apply the tokenizer's chat template or fall back to Mistral's instruct format: `<s>[INST] {user_query} [/INST] {assistant_response}</s>`. Supported a `reset` command.
+
+#### 📂 [training/evaluate.py](file:///home/vasterk/ai-telemedicine-chatbot/training/evaluate.py)
+* **Explanation**: Built the evaluation runner:
+  * **Qualitative Generation**: Iterates over the 25 clinical scenarios in `evaluation_set.jsonl` and writes results to `data/eval_qualitative_predictions.jsonl`.
+  * **Quantitative Evaluation**: Uses a dynamic-programming Longest Common Subsequence (LCS) to compute precise ROUGE-L Precision, Recall, and F1 scores against targets from the validation split. Writes metrics to `data/eval_quantitative_results.json`.
+
+#### 📂 [docs/architecture_and_config.md](file:///home/vasterk/ai-telemedicine-chatbot/docs/architecture_and_config.md)
+* **Explanation**: A comprehensive guide explaining the training parameters, different LLM classes (Encoder-only, Decoder-only, Encoder-Decoder), the separation of conversational models vs. deterministic tools, QLoRA NF4 quantization formulas, and how ChatGPT works.
+
+---
+
+### 2. Verification Results
+
+#### 📊 Compilation Checks (`py_compile`)
+* Ran successfully on the newly added evaluation code:
+  ```text
+  No errors
+  ```
+
+

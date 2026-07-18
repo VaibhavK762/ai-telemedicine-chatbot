@@ -1,0 +1,5 @@
+Hemoglobin 15.0 g/dL
+Hematocrit 45 %
+RBC Count 5.0 million/uL
+WBC Count 7.0 cells/uL
+Platelets 300 cells/uL

@@ -1,0 +1,5 @@
+pH 6.0
+SG 1.015
+Protein negative
+Glucose negative
+Ketones negative

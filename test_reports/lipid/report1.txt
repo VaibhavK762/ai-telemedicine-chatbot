@@ -1,0 +1,5 @@
+Total Cholesterol 180 mg/dL
+LDL 90 mg/dL
+HDL 55 mg/dL
+Triglycerides 120 mg/dL
+VLDL 24 mg/dL
