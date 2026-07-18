@@ -10,7 +10,7 @@ BASE_MODEL_NAME = "BioMistral/BioMistral-7B"
 
 if Path("/kaggle").exists():
     print("Running on Kaggle")
-    DATA_ROOT = Path("/kaggle/input/dataset1")
+    DATA_ROOT = Path("/kaggle/input/datasets/vaibhavkumar1202/dataset1")
     OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
 
 elif Path("/content").exists():
