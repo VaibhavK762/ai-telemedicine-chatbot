@@ -1,2 +1,38 @@
-# Requirements list for Telemedicine AI
-# To be populated as packages are added.
+# Core Deep Learning
+torch
+torchvision
+torchaudio
+
+# Hugging Face Ecosystem
+transformers==4.56.1
+datasets
+accelerate==1.10.1
+peft==0.17.1
+trl==0.21.0
+bitsandbytes==0.47.0
+huggingface_hub
+sentencepiece
+safetensors
+
+# Evaluation
+evaluate
+scikit-learn
+
+# Data Processing
+numpy
+pandas
+tqdm
+
+# Medical Report Analysis
+pdfplumber
+paddlepaddle
+paddleocr
+
+# API
+fastapi
+uvicorn
+python-multipart
+pydantic
+
+# Utilities
+python-dotenv
