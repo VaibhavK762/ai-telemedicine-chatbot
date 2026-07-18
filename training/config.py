@@ -31,7 +31,7 @@ EVALUATION_SET_PATH = str(DATA_ROOT / "evaluation_set.jsonl")
 # Tokenizer
 # ============================================================
 
-MAX_SEQ_LENGTH = 1024
+MAX_SEQ_LENGTH = 512
 PADDING_SIDE = "right"
 
 # ============================================================
