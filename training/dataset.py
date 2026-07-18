@@ -1,4 +1,6 @@
 import json
+import os
+import hashlib
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
@@ -15,6 +17,8 @@ class MedicalInstructionDataset(Dataset):
     - Tokenizes once
     - Creates tensors once
     - Masks prompt tokens with -100
+    - Caches tokenized features to disk so repeated runs (e.g. resumed
+      Kaggle/Colab sessions) skip re-tokenization entirely
     """
 
     def __init__(
@@ -30,6 +34,17 @@ class MedicalInstructionDataset(Dataset):
 
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        # --- cache check ---
+        cache_key = hashlib.md5(f"{file_path}{max_length}{limit}".encode()).hexdigest()[:10]
+        cache_path = f"{file_path}.{cache_key}.cache.pt"
+
+        if os.path.exists(cache_path):
+            print(f"Loading cached tokenized dataset from {cache_path}...")
+            self.features = torch.load(cache_path)
+            print(f"Loaded {len(self.features)} cached samples.")
+            return
+        # --- end cache check ---
 
         records = []
 
@@ -107,6 +122,11 @@ class MedicalInstructionDataset(Dataset):
             )
 
         print("Dataset preprocessing complete.")
+
+        # --- save cache (only reached if we actually tokenized) ---
+        torch.save(self.features, cache_path)
+        print(f"Saved tokenized cache to {cache_path}")
+        # --- end save cache ---
 
     def __len__(self):
         return len(self.features)

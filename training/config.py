@@ -31,7 +31,7 @@ EVALUATION_SET_PATH = str(DATA_ROOT / "evaluation_set.jsonl")
 # Tokenizer
 # ============================================================
 
-MAX_SEQ_LENGTH = 512
+MAX_SEQ_LENGTH = 384          # CHANGED (512 → 384)
 PADDING_SIDE = "right"
 
 # ============================================================
@@ -65,8 +65,8 @@ LORA_TARGET_MODULES = [
 # Training
 # ============================================================
 
-BATCH_SIZE = 2
-GRADIENT_ACCUMULATION_STEPS = 8
+BATCH_SIZE = 4
+GRADIENT_ACCUMULATION_STEPS = 4
 
 LEARNING_RATE = 2e-4
 WEIGHT_DECAY = 0.001
@@ -76,12 +76,12 @@ OPTIMIZER = "paged_adamw_8bit"
 LR_SCHEDULER_TYPE = "cosine"
 WARMUP_RATIO = 0.03
 
-NUM_TRAIN_EPOCHS = 3
+NUM_TRAIN_EPOCHS = 1          # CHANGED (3 → 1)
 
-LOGGING_STEPS = 10
+LOGGING_STEPS = 25            # CHANGED (10 → 25)
 
-SAVE_STEPS = 500
-EVAL_STEPS = 500
+SAVE_STEPS = 250
+EVAL_STEPS = 250
 SAVE_TOTAL_LIMIT = 3
 
 SEED = 42
@@ -90,6 +90,6 @@ SEED = 42
 # Memory Optimizations
 # ============================================================
 
-GRADIENT_CHECKPOINTING = True
+GRADIENT_CHECKPOINTING = False
 MAX_GRAD_NORM = 0.3
 GROUP_BY_LENGTH = True
