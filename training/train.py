@@ -122,6 +122,8 @@ def train():
     # 5. Training Arguments & Trainer Initialization
     print("\n[5/5] Configuring SFT trainer...")
     training_args = TrainingArguments(
+        dataloader_num_workers=2,
+        dataloader_persistent_workers=True,
         output_dir=OUTPUT_DIR,
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
@@ -152,12 +154,12 @@ def train():
     )
 
     # Use DataCollatorForSeq2Seq to handle pad collations dynamically
-    data_collator = DataCollatorForSeq2Seq(
-        tokenizer,
-        pad_to_multiple_of=8,
-        return_tensors="pt",
-        padding=True
-    )
+    def data_collator(features):
+        return {
+            "input_ids": torch.stack([f["input_ids"] for f in features]),
+            "attention_mask": torch.stack([f["attention_mask"] for f in features]),
+            "labels": torch.stack([f["labels"] for f in features]),
+        }
 
     trainer = Trainer(
         model=model,

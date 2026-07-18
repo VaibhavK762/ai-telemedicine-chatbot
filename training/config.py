@@ -1,12 +1,11 @@
 from pathlib import Path
-import os
 import torch
 
 BASE_MODEL_NAME = "BioMistral/BioMistral-7B"
 
-# ==========================
+# ============================================================
 # Environment Detection
-# ==========================
+# ============================================================
 
 if Path("/kaggle").exists():
     print("Running on Kaggle")
@@ -28,20 +27,30 @@ TRAIN_DATA_PATH = str(DATA_ROOT / "train.jsonl")
 VAL_DATA_PATH = str(DATA_ROOT / "validation.jsonl")
 EVALUATION_SET_PATH = str(DATA_ROOT / "evaluation_set.jsonl")
 
-# Tokenizer Details
-MAX_SEQ_LENGTH = 512  # Reduced for RTX 3050 4GB VRAM
+# ============================================================
+# Tokenizer
+# ============================================================
+
+MAX_SEQ_LENGTH = 1024
 PADDING_SIDE = "right"
 
-# 4-bit Quantization (QLoRA)
+# ============================================================
+# QLoRA Quantization
+# ============================================================
+
 LOAD_IN_4BIT = True
 BNB_4BIT_QUANT_TYPE = "nf4"
 BNB_4BIT_USE_DOUBLE_QUANT = True
 BNB_4BIT_COMPUTE_DTYPE = torch.float16
 
-# LoRA Configuration
+# ============================================================
+# LoRA
+# ============================================================
+
 LORA_R = 16
 LORA_ALPHA = 32
 LORA_DROPOUT = 0.05
+
 LORA_TARGET_MODULES = [
     "q_proj",
     "k_proj",
@@ -52,22 +61,35 @@ LORA_TARGET_MODULES = [
     "down_proj"
 ]
 
-# Training Hyperparameters
-BATCH_SIZE = 1  # Reduced batch size for limited VRAM
-GRADIENT_ACCUMULATION_STEPS = 16  # Increase to keep effective batch size
+# ============================================================
+# Training
+# ============================================================
+
+BATCH_SIZE = 2
+GRADIENT_ACCUMULATION_STEPS = 8
+
 LEARNING_RATE = 2e-4
 WEIGHT_DECAY = 0.001
+
 OPTIMIZER = "paged_adamw_8bit"
+
 LR_SCHEDULER_TYPE = "cosine"
 WARMUP_RATIO = 0.03
-NUM_TRAIN_EPOCHS = 2
+
+NUM_TRAIN_EPOCHS = 3
+
 LOGGING_STEPS = 10
-SAVE_STEPS = 100
-EVAL_STEPS = 100
+
+SAVE_STEPS = 500
+EVAL_STEPS = 500
 SAVE_TOTAL_LIMIT = 3
+
 SEED = 42
 
-# Training Quality & Efficiency Additions
+# ============================================================
+# Memory Optimizations
+# ============================================================
+
 GRADIENT_CHECKPOINTING = True
 MAX_GRAD_NORM = 0.3
 GROUP_BY_LENGTH = True
