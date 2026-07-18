@@ -1,13 +1,32 @@
 from pathlib import Path
+import os
 import torch
 
 BASE_MODEL_NAME = "BioMistral/BioMistral-7B"
 
-ROOT_DIR = Path("/kaggle/input/telemedicine-dataset")
+# ==========================
+# Environment Detection
+# ==========================
 
-TRAIN_DATA_PATH = str(ROOT_DIR / "train.jsonl")
-VAL_DATA_PATH = str(ROOT_DIR / "validation.jsonl")
-EVALUATION_SET_PATH = str(ROOT_DIR / "evaluation_set.jsonl")
+if Path("/kaggle").exists():
+    print("Running on Kaggle")
+    DATA_ROOT = Path("/kaggle/input/dataset1")   # <-- change to your dataset name
+    OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
+
+elif Path("/content").exists():
+    print("Running on Google Colab")
+    DATA_ROOT = Path("/content/drive/MyDrive/AI-Telemedicine/data/final")
+    OUTPUT_DIR = "/content/drive/MyDrive/AI-Telemedicine/adapters/biomistral-telemedicine"
+
+else:
+    print("Running locally")
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    DATA_ROOT = PROJECT_ROOT / "data" / "final"
+    OUTPUT_DIR = str(PROJECT_ROOT / "adapters" / "biomistral-telemedicine")
+
+TRAIN_DATA_PATH = str(DATA_ROOT / "train.jsonl")
+VAL_DATA_PATH = str(DATA_ROOT / "validation.jsonl")
+EVALUATION_SET_PATH = str(DATA_ROOT / "evaluation_set.jsonl")
 
 OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
 
