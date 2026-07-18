@@ -138,7 +138,7 @@ def train():
         logging_steps=LOGGING_STEPS,
         save_steps=SAVE_STEPS,
         eval_steps=EVAL_STEPS,
-        eval_strategy="steps",
+        eval_strategy="no",
         save_strategy="steps",
         save_total_limit=SAVE_TOTAL_LIMIT,
         fp16=True,
