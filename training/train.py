@@ -17,6 +17,7 @@ from peft import (
 
 from .config import *
 from .dataset import MedicalInstructionDataset
+from torch.nn.utils.rnn import pad_sequence
 
 def parse_args():
     parser = argparse.ArgumentParser(description="QLoRA SFT fine-tuning pipeline for BioMistral-7B")
@@ -155,10 +156,29 @@ def train():
 
     # Use DataCollatorForSeq2Seq to handle pad collations dynamically
     def data_collator(features):
+
+        input_ids = pad_sequence(
+            [f["input_ids"] for f in features],
+            batch_first=True,
+            padding_value=tokenizer.pad_token_id
+        )
+
+        attention_mask = pad_sequence(
+            [f["attention_mask"] for f in features],
+            batch_first=True,
+            padding_value=0
+        )
+
+        labels = pad_sequence(
+            [f["labels"] for f in features],
+            batch_first=True,
+            padding_value=-100
+        )
+
         return {
-            "input_ids": torch.stack([f["input_ids"] for f in features]),
-            "attention_mask": torch.stack([f["attention_mask"] for f in features]),
-            "labels": torch.stack([f["labels"] for f in features]),
+            "input_ids": input_ids,
+            "attention_mask": attention_mask,
+            "labels": labels,
         }
 
     trainer = Trainer(
