@@ -10,7 +10,7 @@ BASE_MODEL_NAME = "BioMistral/BioMistral-7B"
 
 if Path("/kaggle").exists():
     print("Running on Kaggle")
-    DATA_ROOT = Path("/kaggle/input/dataset1")   # <-- change to your dataset name
+    DATA_ROOT = Path("/kaggle/input/dataset1")
     OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
 
 elif Path("/content").exists():
@@ -27,13 +27,6 @@ else:
 TRAIN_DATA_PATH = str(DATA_ROOT / "train.jsonl")
 VAL_DATA_PATH = str(DATA_ROOT / "validation.jsonl")
 EVALUATION_SET_PATH = str(DATA_ROOT / "evaluation_set.jsonl")
-
-OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
-
-# Dataset Paths
-TRAIN_DATA_PATH = "data/final/train.jsonl"
-VAL_DATA_PATH = "data/final/validation.jsonl"
-EVALUATION_SET_PATH = "data/evaluation_set.jsonl"
 
 # Tokenizer Details
 MAX_SEQ_LENGTH = 512  # Reduced for RTX 3050 4GB VRAM
