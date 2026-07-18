@@ -1,8 +1,15 @@
+from pathlib import Path
 import torch
 
-# Base Model details
 BASE_MODEL_NAME = "BioMistral/BioMistral-7B"
-OUTPUT_DIR = "./adapters/biomistral-telemedicine"
+
+ROOT_DIR = Path("/kaggle/input/telemedicine-dataset")
+
+TRAIN_DATA_PATH = str(ROOT_DIR / "train.jsonl")
+VAL_DATA_PATH = str(ROOT_DIR / "validation.jsonl")
+EVALUATION_SET_PATH = str(ROOT_DIR / "evaluation_set.jsonl")
+
+OUTPUT_DIR = "/kaggle/working/adapters/biomistral-telemedicine"
 
 # Dataset Paths
 TRAIN_DATA_PATH = "data/final/train.jsonl"
