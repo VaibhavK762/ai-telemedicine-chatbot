@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument("--dry-run", action="store_true", help="Perform configuration checks and load the model without running the training loop.")
     parser.add_argument("--epochs", type=int, default=NUM_TRAIN_EPOCHS, help="Number of training epochs")
     parser.add_argument("--lr", type=float, default=LEARNING_RATE, help="Learning rate")
-    parser.add_argument("--subset-size", type=int, default=None, help="Train on a small subset of the dataset for validation/debug runs.")
+    parser.add_argument("--subset-size", type=int, default=30000, help="Train on a small subset of the dataset for validation/debug runs.")
     parser.add_argument("--resume-from-checkpoint", type=str, default=None, help="Path to checkpoint directory to resume training from.")
     return parser.parse_args()
 
