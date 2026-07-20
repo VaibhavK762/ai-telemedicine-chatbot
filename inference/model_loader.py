@@ -1,5 +1,6 @@
 import os
 import torch
+import traceback
 from pathlib import Path
 from typing import Tuple, Optional
 
@@ -25,13 +26,16 @@ class ModelLoader:
         
         # Disable mmap globally to avoid swap commit issues
         original_torch_load = torch.load
-        def patched_torch_load(*args, **kwargs):
-            kwargs['mmap'] = False
-            return original_torch_load(*args, **kwargs)
-        torch.load = patched_torch_load
+        try:
+            def patched_torch_load(*args, **kwargs):
+                kwargs['mmap'] = False
+                return original_torch_load(*args, **kwargs)
+            torch.load = patched_torch_load
+        finally:
+            torch.load = original_torch_load
 
         # Skip heavy GPU load if no CUDA device available to prevent OOM
-        if not torch.cuda.is_available():
+        if not torch.cuda.is_available():   
             print("[ModelLoader] Warning: CUDA is unavailable. Running in lightweight CPU fallback mode.")
             self.is_model_loaded = False
             self.is_adapter_loaded = False
@@ -66,7 +70,12 @@ class ModelLoader:
             )
 
             # 4. Load LoRA Adapters
-            if os.path.exists(settings.ADAPTER_PATH):
+            adapter_config = os.path.join(  
+                settings.ADAPTER_PATH,
+                "adapter_config.json"
+            )
+
+            if os.path.isfile(adapter_config):
                 print(f"[ModelLoader] Applying LoRA adapter from {settings.ADAPTER_PATH}...")
                 self.model = PeftModel.from_pretrained(self.model, settings.ADAPTER_PATH)
                 self.is_adapter_loaded = True
@@ -76,9 +85,11 @@ class ModelLoader:
             self.is_model_loaded = True
             print("[ModelLoader] Model and adapters successfully initialized!")
 
-        except Exception as e:
-            print(f"[ModelLoader] Error during model initialization: {e}")
-            self.is_model_loaded = False
-            self.is_adapter_loaded = False
+        except Exception:
+            print("=" * 80)
+            print("MODEL INITIALIZATION FAILED")
+            traceback.print_exc()
+            print("=" * 80)
+            raise
 
 model_loader = ModelLoader()
