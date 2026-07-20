@@ -21,7 +21,7 @@ else:
     print("Running locally")
     PROJECT_ROOT = Path(__file__).resolve().parents[1]
     DATA_ROOT = PROJECT_ROOT / "data" / "final"
-    OUTPUT_DIR = str(PROJECT_ROOT / "adapters" / "biomistral-telemedicine")
+    OUTPUT_DIR = str(PROJECT_ROOT / "adapters" / "biomistral-telemedicine-adapter")
 
 TRAIN_DATA_PATH = str(DATA_ROOT / "train.jsonl")
 VAL_DATA_PATH = str(DATA_ROOT / "validation.jsonl")
@@ -76,9 +76,9 @@ OPTIMIZER = "paged_adamw_8bit"
 LR_SCHEDULER_TYPE = "cosine"
 WARMUP_RATIO = 0.03
 
-NUM_TRAIN_EPOCHS = 1          # CHANGED (3 → 1)
+NUM_TRAIN_EPOCHS = 1       
 
-LOGGING_STEPS = 25            # CHANGED (10 → 25)
+LOGGING_STEPS = 25            
 
 SAVE_STEPS = 0
 EVAL_STEPS = 0
