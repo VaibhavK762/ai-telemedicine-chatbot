@@ -5,6 +5,7 @@ from ..confidence import calculate_confidence
 from ..logger import logger
 
 
+
 def build_marker_lookup(test_type):
     lookup = {}
     markers = LAB_DATA.get(test_type, {})
@@ -61,13 +62,27 @@ def extract_value(line, alias):
 
     if not numbers:
         return None
+    
+    print(f"Extracted value {numbers[0]} from line: {line}")
 
     return float(numbers[0])
 
 
 def regex_extract(text, test_type) -> dict:
+    print("\n\n******** REGEX EXTRACTOR CALLED ********")
+    print("TEST TYPE:", test_type)
     logger.info("Starting regex extraction for test type: %s", test_type)
     lookup = build_marker_lookup(test_type)
+
+    print("=" * 60)
+    print("TEST TYPE:", test_type)
+    print("LOOKUP SIZE:", len(lookup))
+    print("FIRST 20 LOOKUP ENTRIES")
+
+    for alias, info in lookup[:20]:
+        print(alias, "->", info["marker"])
+
+    print("=" * 60)
 
     tests = []
     seen = set()
@@ -80,6 +95,14 @@ def regex_extract(text, test_type) -> dict:
         if line.strip()
     ]
 
+    print("=" * 60)
+    print("OCR LINES")
+
+    for i, line in enumerate(lines):
+        print(f"{i}: {repr(line)}")
+
+    print("=" * 60)
+
     for line in lines:
         clean = (
             line.lower()
@@ -89,6 +112,10 @@ def regex_extract(text, test_type) -> dict:
 
         for alias, info in lookup:
             pattern = rf"\b{re.escape(alias)}\b"
+
+            if re.search(pattern, clean):
+                print(f"MATCHED ALIAS: {alias}")    
+                print(f"LINE: {line}")
 
             if not re.search(pattern, clean):
                 continue

@@ -552,3 +552,62 @@ We refactored the QLoRA training script configurations to apply hardware-aware m
   ```
 
 
+---
+
+# Daily Updates - July 22, 2026 (System Hardening, 3-Tier Safety Triage & Conversation Memory Alignment)
+
+This log documents the system hardening, multi-turn conversation memory fixes, 3-tier safety triage architecture with dynamic clinical history question injection, response cleaner expansion, lab pipeline mapping, and automated test suite expansion.
+
+---
+
+## Today's Summary (Start: 18:00 UTC)
+We refactored the telemedicine chatbot backend for end-to-end reliability and clinical safety. We corrected the lab report knowledge base mapping (`REPORT_TO_SAMPLE_TYPE`) and resolved LLM HTTP timeout issues by increasing client timeouts to 120s to support live BioMistral GPU generation. We aligned multi-turn prompt formatting with BioMistral's chat template (`<s>[INST] ... [/INST] ... </s>`) to prevent context loss across turns. We upgraded the safety layer from binary emergency checks to a 3-tier triage system (`NORMAL`, `URGENT`, `EMERGENCY`), adding contextual red flags for gynecological/obstetric presentations and dynamic clinical history question injection (`CLINICAL_QUESTIONS_MAP`). We also updated system prompt rules to enforce hedged clinical language and clarification before diagnosis, expanded response cleaner regex patterns to strip ChatDoctor boilerplates, and expanded the automated pytest suite to 27 passing test cases.
+
+---
+
+### 1. Created & Modified Files & Explanations
+
+#### 📂 [backend/services/safety.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/safety.py)
+* **Explanation**: Re-architected safety triage from binary check to a 3-tier system (`NORMAL`, `URGENT`, `EMERGENCY`):
+  * Added contextual red-flag regex patterns for gynecological/obstetric symptoms (vaginal bleeding + pregnancy, miscarriage, fainting, dizziness, severe pain, or heavy flow/soaking pads).
+  * Implemented `CLINICAL_QUESTIONS_MAP` providing category-specific clinical history questions for gynecological, kidney stone, appendicitis, and general symptoms.
+
+#### 📂 [backend/api/chat.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/api/chat.py)
+* **Explanation**: Updated core chat endpoint logic:
+  * Implemented `ChatResponse` model with `is_urgent` and `status` fields.
+  * Added dynamic prompt routing: when `URGENT` status is detected, injects `[CLINICAL URGENCY PROTOCOL]` with specific clinical questions into `build_prompt` context data.
+  * Added comprehensive server logging for request lifecycle, session IDs, safety triage status, assembled prompts, and cleaned outputs.
+
+#### 📂 [backend/services/prompt_builder.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/prompt_builder.py)
+* **Explanation**: Re-architected prompt construction and system rules:
+  * Re-architected turn pairing loop to strictly adhere to Llama-2 / BioMistral Chat template: `<s>[INST] [SYSTEM INSTRUCTION] ... [/INST] Understood. </s> [INST] User turn 1 [/INST] Assistant turn 1 </s> [INST] Current Query [/INST]`.
+  * Added **Symptom Clarification Rule 5**, **Appropriate Testing Rule 6**, and **Differential Diagnosis Rule 7** to `DEFAULT_SYSTEM_INSTRUCTION`.
+
+#### 📂 [backend/services/response_cleaner.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/response_cleaner.py)
+* **Explanation**: Expanded regex cleaning filters:
+  * Added `SPECIAL_TOKENS` (`[INST]`, `[/INST]`, `<s>`, `</s>`, `<|im_start|>`, `<|im_end|>`).
+  * Added `BOILERPLATE_PATTERNS` to strip ChatDoctor signatures (`ChatDoctor`), greetings (`Hello!`, `Hi Dear`, `Thanks for writing`), sign-offs (`Best Wishes`, `Sincerely`), and short URLs (`bit.ly`, `Ly/`).
+
+#### 📂 [backend/services/lab_service.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/lab_service.py) & [backend/services/report_service.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/report_service.py)
+* **Explanation**: Fixed lab report processing and knowledge base disconnect:
+  * Renamed `TEST_TYPE_MAP` to `REPORT_TO_SAMPLE_TYPE` to translate UI report types (`cbc`, `lipid`, `thyroid`, `metabolic`) to knowledge base sample categories (`blood`, `urine`, `stool`).
+  * Updated `report_service.py` to extract findings from `analysis["analysis"]["results"]` and format values, units, status flags (`[LOW]`, `[HIGH]`), and reference ranges for the LLM prompt.
+
+#### 📂 [backend/services/llm_client.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/services/llm_client.py)
+* **Explanation**: Hardened LLM inference client:
+  * Increased HTTP POST request timeout from `10s` to `120s` for live ngrok BioMistral GPU generation.
+  * Added non-medical query detection (`python`, `javascript`, `code`, `math`, `calculus`) returning a polite medical domain boundary statement.
+  * Built `_build_lab_fallback_explanation` for context-aware structured fallback when the inference server is unreachable.
+
+#### 📂 [backend/tests/test_safety.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/tests/test_safety.py) & [backend/tests/test_api_chat.py](file:///home/vasterk/ai-telemedicine-chatbot/backend/tests/test_api_chat.py)
+* **Explanation**: Expanded test suite to 27 unit and integration test cases covering multi-turn memory, 3-tier safety classification (including contextual gynecological red flags), prompt rules, response cleaner, and API endpoints.
+
+---
+
+### 2. Verification Results
+
+#### 📊 PyTest Verification Suite (`python3 -m pytest backend/tests/ -v`)
+* Successfully verified all backend components:
+  * **Total Test Cases**: 27
+  * **Passed**: 27
+  * **Coverage**: Multi-turn history, 3-tier safety triage (`NORMAL`, `URGENT`, `EMERGENCY`), prompt rules, response cleaner token stripping, lab report pipeline, and API endpoints.

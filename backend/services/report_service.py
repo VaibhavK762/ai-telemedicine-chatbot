@@ -27,15 +27,30 @@ def process_report_file(
     if sex:
         summary_lines.append(f"Patient Sex: {sex}")
 
-    findings = analysis.get("findings", analysis.get("results", []))
-    if isinstance(findings, list) and len(findings) > 0:
+    # Extract results from nested analysis dictionary
+    results_list = []
+    if isinstance(analysis, dict):
+        if "analysis" in analysis and isinstance(analysis["analysis"], dict):
+            results_list = analysis["analysis"].get("results", [])
+        elif "results" in analysis:
+            results_list = analysis.get("results", [])
+        elif "extracted_tests" in analysis:
+            results_list = analysis.get("extracted_tests", [])
+
+    if results_list:
         summary_lines.append("Extracted Test Findings:")
-        for item in findings:
-            marker = item.get("marker", item.get("test_name", "Unknown"))
-            val = item.get("value", item.get("result", ""))
-            status = item.get("status", "NORMAL")
+        for item in results_list:
+            marker = item.get("marker", item.get("display_name", "Unknown"))
+            val = item.get("value", "")
             unit = item.get("unit", "")
-            summary_lines.append(f"- {marker}: {val} {unit} [{status}]")
+            status = item.get("status", "NORMAL")
+
+            range_info = ""
+            norm_range = item.get("normal_range")
+            if isinstance(norm_range, dict) and "min" in norm_range and "max" in norm_range:
+                range_info = f" (Reference Range: {norm_range['min']} - {norm_range['max']})"
+
+            summary_lines.append(f"- {marker}: {val} {unit} [{status}]{range_info}")
     elif "raw_text" in analysis:
         summary_lines.append(f"Extracted Raw Text Snippet:\n{analysis['raw_text'][:500]}")
     else:
@@ -48,6 +63,11 @@ def process_report_file(
         current_question="Please explain the clinical significance of these lab results and suggest next steps.",
         context_data=context_str
     )
+
+    print("=" * 60)
+    print("[report_service] PROMPT SENT TO LLM:")
+    print(prompt)
+    print("=" * 60)
 
     # 4. Generate LLM response & clean output
     raw_explanation = generate(prompt)

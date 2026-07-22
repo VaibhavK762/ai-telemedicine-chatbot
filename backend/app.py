@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.config import settings
 from backend.api.chat import router as chat_router
@@ -25,17 +26,11 @@ app.include_router(chat_router, prefix=settings.API_PREFIX)
 app.include_router(reports_router, prefix=settings.API_PREFIX)
 
 
-
-
-@app.get("/")
-def read_root():
-    return {
-        "status": "online",
-        "service": settings.PROJECT_NAME,
-        "version": settings.VERSION
-    }
-
-
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
+# Mount static frontend directory
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+

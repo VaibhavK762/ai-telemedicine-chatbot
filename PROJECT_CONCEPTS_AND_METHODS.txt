@@ -1,0 +1,120 @@
+================================================================================
+AI TELEMEDICINE CHATBOT — PROJECT CONCEPTS, TOPICS, AND METHODS
+================================================================================
+
+1. PROJECT OVERVIEW & ARCHITECTURE
+--------------------------------------------------------------------------------
+The AI Telemedicine Chatbot is an end-to-end clinical AI application designed for 
+patient symptom analysis, lab report interpretation, multi-turn medical chat, 
+and safety triage. The system integrates a fine-tuned Medical LLM (BioMistral), 
+an OCR + Regex lab extraction pipeline, a 3-tier clinical safety layer, dynamic 
+prompt engineering, and a FastAPI backend with a responsive web frontend.
+
+Main Workspace Location: /home/vasterk/ai-telemedicine-chatbot
+
+
+2. MEDICAL AI & LLM INFERENCE METHODS
+--------------------------------------------------------------------------------
+* Model Architecture: BioMistral (Mistral-7B specialized for biomedical tasks).
+* Quantization & Efficiency:
+  - 4-bit NormalFloat (NF4) quantization via bitsandbytes.
+  - Parameter-Efficient Fine-Tuning (PEFT) using Quantized Low-Rank Adaptation (QLoRA).
+  - Target LoRA Adapter Modules: q_proj, v_proj (r=16, alpha=32).
+  - Double Quantization & bfloat16 computation data types.
+* Inference Deployment:
+  - Remote/Local HTTP Inference Server using ngrok HTTP tunnels (/v1/generate endpoint).
+  - Extended HTTP Client Timeout (120 seconds) in Python requests to accommodate GPU generation latency.
+  - Context-Aware Fallback Generators for lab findings and non-medical queries when LLM is unreachable.
+
+
+3. 3-TIER SAFETY LAYER & CLINICAL TRIAGE ARCHITECTURE
+--------------------------------------------------------------------------------
+* Triage Classification Tiers:
+  1. EMERGENCY: Immediate life-threatening conditions (chest pain, stroke, asphyxiation, heavy bleeding, loss of consciousness, poisoning, suicidal ideation). Returns immediate ER/911 guidance banner.
+  2. URGENT: High-risk or acute conditions (suspected appendicitis, kidney stone symptoms, high fever, unexplained vaginal bleeding, severe abdominal pain). Returns urgent care guidance banner + dynamic history questions.
+  3. NORMAL: Mild or routine health inquiries.
+* Contextual Red Flag Detection:
+  - Detects multi-word contextual red flags (e.g. vaginal bleeding combined with pregnancy, miscarriage, fainting, dizziness, severe pain, or heavy flow/soaking pads).
+* Dynamic History Question Injection (CLINICAL_QUESTIONS_MAP):
+  - Automatically maps category-specific history questions (gynecological, kidney stone, appendicitis, general) based on detected keywords.
+  - Formats questions into [CLINICAL URGENCY PROTOCOL] and injects them directly into the LLM prompt context to force the model to ask clarifying questions before discussing possibilities.
+
+
+4. LAB REPORT EXTRACTION & KNOWLEDGE ENGINE PIPELINE
+--------------------------------------------------------------------------------
+* Optical Character Recognition (OCR):
+  - Uses PaddleOCR to extract raw text blocks from uploaded lab report images/PDFs.
+* Pattern-Based Extraction Engine:
+  - Regex Extractor (medical_tools/extractors/regex_extractor.py) using flexible regular expressions to capture biomarker names, quantitative values, and units (e.g., Hemoglobin, Hematocrit, RBC, WBC, Platelets).
+* Sample Category Mapping (REPORT_TO_SAMPLE_TYPE):
+  - Translates UI report types (cbc, lipid, thyroid, metabolic) to Knowledge Base sample categories (blood, urine, stool).
+* Knowledge Base Reference Range Rule Engine:
+  - Compares extracted quantitative values against reference ranges stored in lab_ranges.json.
+  - Classifies biomarker values into status flags: [LOW], [HIGH], or [NORMAL].
+* Structured Prompt Formatting:
+  - Assembles biomarker findings, units, status flags, and reference ranges into structured Markdown context for LLM explanation.
+
+
+5. PROMPT ENGINEERING & CHAT TEMPLATE ALIGNMENT
+--------------------------------------------------------------------------------
+* Chat Template Token Formatting:
+  - Strict Llama-2 / BioMistral Chat template structure:
+    <s>[INST] [SYSTEM INSTRUCTION] ... [/INST] Understood. </s>
+    [INST] User Msg 1 [/INST] Assistant Msg 1 </s>
+    [INST] User Msg 2 [/INST]
+* Clinical System Rules (DEFAULT_SYSTEM_INSTRUCTION):
+  1. Hedged Language: Avoid definitive diagnoses ("You have X"). Use "Your symptoms are consistent with X...".
+  2. Conciseness: Avoid repeating disclaimer boilerplates.
+  3. Context Retention: Maintain strict conversation turn context.
+  4. Grounding: Do not mention unsupported conditions or medications.
+  5. Symptom Clarification Rule: Ask 2-4 concise clarifying questions for nonspecific symptoms before suggesting diagnoses. Do not assume unstated context (pregnancy, menstruation).
+  6. Appropriate Testing Rule: Prohibit suggesting inappropriate screening tests (e.g., Pap smear for acute bleeding). Recommend relevant clinical evaluation.
+  7. Differential Diagnosis Rule: Do not commit to a single diagnosis from a single symptom.
+
+
+6. RESPONSE CLEANER & POST-PROCESSING METHODS
+--------------------------------------------------------------------------------
+* Token Scrubbing:
+  - Strips special LLM tokens: [INST], [/INST], <s>, </s>, <|im_start|>, <|im_end|>.
+* Boilerplate & Signature Filtering:
+  - Strips ChatDoctor signatures ("ChatDoctor", "Best Wishes", "Sincerely"), greetings ("Hello!", "Hi Dear", "Thanks for writing"), and web links ("bit.ly", "Ly/").
+* Formatting Normalization:
+  - Fixes duplicate punctuation, removes excessive blank lines, and normalizes space boundaries.
+
+
+7. NON-MEDICAL BOUNDARY POLICY
+--------------------------------------------------------------------------------
+* Intent Keyword Detection:
+  - Detects non-medical topics (programming, math, general trivia) using regex patterns.
+* Domain Boundary Response:
+  - Returns a polite domain limitation statement redirecting users to general AI assistants for non-medical topics.
+
+
+8. DATASETS & SFT FINE-TUNING PIPELINE
+--------------------------------------------------------------------------------
+* Fine-Tuning Datasets Formatted:
+  - ChatDoctor (lavita chats): Conversational doctor-patient QA.
+  - PubMedQA: Biomedical abstracts and clinical reasoning QA.
+  - MedQA (USMLE): Clinical vignettes with multiple-choice rationale.
+  - MedMCQA: Multiple-choice medical entrance exam QA.
+* Data Preprocessing Methods:
+  - Deduplication, cleaning repetitive structures, and quality filtering.
+  - Loss Masking: Setting prompt/user instruction tokens to -100 so cross-entropy loss is computed exclusively on assistant response tokens.
+* Evaluation Methodology:
+  - Qualitative Evaluation: 25 representative clinical scenarios.
+  - Quantitative Evaluation: ROUGE-L Precision, Recall, and F1 metrics calculated via dynamic programming Longest Common Subsequence (LCS).
+
+
+9. BACKEND & FRONTEND IMPLEMENTATION STACK
+--------------------------------------------------------------------------------
+* Backend Framework:
+  - FastAPI (Python 3.12) running on Uvicorn server (host 0.0.0.0, port 8000).
+  - Pydantic models for request/response validation (ChatRequest, ChatResponse, ReportUploadResponse).
+  - In-memory session manager (ConversationManager) maintaining multi-turn context history per session.
+* Frontend Interface:
+  - Responsive web application built with HTML5, Vanilla CSS, and JavaScript.
+  - Supports real-time chat, file upload drag-and-drop, and medical status badge rendering.
+* Automated Test Suite:
+  - PyTest suite under backend/tests/ covering safety triage, prompt building, response cleaning, lab extraction, and API endpoints.
+
+================================================================================

@@ -15,6 +15,20 @@ except ImportError:
     process_lab_report = None
     analyze_report = None
 
+# Maps frontend UI report types (subtypes like CBC, Lipid, Thyroid)
+# to knowledge base sample categories ('blood', 'urine', 'stool')
+REPORT_TO_SAMPLE_TYPE = {
+    "cbc": "blood",
+    "lipid": "blood",
+    "metabolic": "blood",
+    "thyroid": "blood",
+    "general": "blood",
+    "blood": "blood",
+    "urine": "urine",
+    "stool": "stool"
+}
+
+
 def run_lab_analysis(
     file_path: str,
     test_type: str = "cbc",
@@ -31,10 +45,12 @@ def run_lab_analysis(
             "findings": []
         }
 
+    sample_category = REPORT_TO_SAMPLE_TYPE.get(test_type.lower(), "blood")
+
     try:
         result = process_lab_report(
             file_path=file_path,
-            test_type=test_type,
+            test_type=sample_category,
             age=age,
             sex=sex
         )
