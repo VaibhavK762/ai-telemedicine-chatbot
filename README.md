@@ -27,7 +27,7 @@ The AI Telemedicine Chatbot is built as a multi-layered decoupled microservice a
 - **FastAPI Application Backend**: Asynchronous HTTP API with Pydantic validation, structured routing (`/api/chat`, `/api/upload_report`), and in-memory multi-turn session management (`ConversationManager`).
 - **3-Tier Safety & Clinical Triage Layer**: Evaluates incoming queries for life-threatening emergencies (`EMERGENCY`), high-risk conditions (`URGENT`), and routine health queries (`NORMAL`). Dynamically injects clinical history questions into the context when urgent patterns are detected.
 - **OCR & Knowledge Base Lab Analyzer Engine**: Uses PaddleOCR for lab image text extraction, regex parsing for biomarker values/units, and cross-references results against `knowledge_base/lab_ranges.json` to generate structured Markdown findings (`[LOW]`, `[HIGH]`, `[NORMAL]`).
-- **Medical LLM Inference Engine**: BioMistral-7B model fine-tuned via QLoRA 4-bit NF4 quantization, hosted via remote/local HTTP inference endpoints (`/v1/generate`) with a 120s timeout and context-aware fallback generators.
+- **Medical LLM Inference Engine**: BioMistral-7B model fine-tuned via QLoRA 4-bit NF4 quantization on **Kaggle** GPUs and deployed on a **Google Colab** instance as a dedicated HTTP inference server (`/v1/generate`) exposed via an **ngrok HTTP tunnel**, with a 120s timeout and context-aware fallback generators.
 - **Response Cleaning Pipeline**: Token scrubber removing special chat tokens, ChatDoctor signatures, greetings, broken URL links, and normalizing punctuation.
 
 ```mermaid
@@ -51,7 +51,7 @@ graph TD
     LabContext --> PromptBuild
     
     PromptBuild --> TokenFormat[Chat Template Alignment s INST ... /INST s]
-    TokenFormat --> LLM[BioMistral-7B QLoRA Inference Server /v1/generate]
+    TokenFormat --> LLM[Google Colab BioMistral-7B Inference Server via ngrok]
     LLM --> Cleaner[Response Cleaner & Token Scrubbing Pipeline]
     Cleaner --> UI[Render Markdown Response & Clinical Badges in Frontend]
 ```
@@ -88,7 +88,7 @@ flowchart TD
     O --> P
     H --> P
     
-    P --> Q[Send request to BioMistral-7B Inference Engine]
+    P --> Q[Send HTTP POST to Google Colab Inference Server via ngrok]
     Q --> R{Is Inference Server Online?}
     R -->|No| S[Trigger Context-Aware Fallback Generator]
     R -->|Yes| T[Generate LLM token stream]
@@ -112,14 +112,14 @@ sequenceDiagram
     participant FE as Web Frontend
     participant BE as FastAPI Backend
     participant Triage as Safety Classifier
-    participant LLM as BioMistral Inference Server
+    participant LLM as Google Colab BioMistral Inference Server (ngrok)
 
     User->>FE: Enters symptom query (e.g. "Stiff, painful finger joints in morning")
     FE->>BE: POST /api/chat {session_id, message}
     BE->>Triage: classify_safety(message)
     Triage-->>BE: Status: NORMAL
     BE->>BE: build_prompt(history, system_rules)
-    BE->>LLM: HTTP POST /v1/generate {prompt}
+    BE->>LLM: HTTP POST /v1/generate {prompt} via ngrok tunnel
     LLM-->>BE: Generated clinical advice
     BE->>BE: clean_response(text)
     BE-->>FE: JSON Response {reply, status: "NORMAL"}
@@ -135,14 +135,14 @@ sequenceDiagram
     participant BE as FastAPI Backend
     participant OCR as PaddleOCR & Extractor
     participant KB as Lab Ranges KB
-    participant LLM as BioMistral Inference Server
+    participant LLM as Google Colab BioMistral Inference Server (ngrok)
 
     User->>FE: Drag & drop lab report image/PDF
     FE->>BE: POST /api/upload_report {file, test_type}
     BE->>OCR: extract_text_and_biomarkers(file)
     OCR->>KB: lookup_ranges(biomarkers, age, sex)
     KB-->>BE: Findings: Hemoglobin 10.5 g/dL [LOW]
-    BE->>LLM: HTTP POST /v1/generate {lab_prompt}
+    BE->>LLM: HTTP POST /v1/generate {lab_prompt} via ngrok tunnel
     LLM-->>BE: Generated clinical interpretation
     BE-->>FE: JSON Response {analysis_summary, llm_explanation}
     FE-->>User: Render lab breakdown card & biomarker flags
@@ -182,15 +182,23 @@ sequenceDiagram
   - Target Projection Matrices: All linear modules (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`).
 - **Loss Masking Strategy**: Prompts and system instructions are masked with label `-100` during SFT training, ensuring cross-entropy loss is calculated strictly on target clinical assistant responses.
 
+### Infrastructure & Hardware Strategy (Kaggle & Google Colab)
+Due to limited local GPU VRAM hardware (e.g. 4GB RTX 3050 Laptop GPU), model training and live inference hosting were offloaded to cloud platform environments:
+
+1. **Kaggle GPU Training**: Fine-tuning was executed on **Kaggle Notebooks** utilizing Kaggle's free T4 GPU environment.
+2. **Dataset Sample Constraint (30,000 Subset)**: While the full preprocessed and deduplicated corpus contains **95,994 samples**, fine-tuning was intentionally restricted to a **30,000 sample subset** due to cloud GPU session execution limits, VRAM memory compatibility constraints, and training time optimizations.
+3. **Google Colab Live Inference Server**: The trained model adapter was deployed on **Google Colab** as a lightweight HTTP server (`llama_server.py`). The `/v1/generate` endpoint was exposed via an **ngrok HTTP tunnel**, allowing the local FastAPI backend to query the live BioMistral model seamlessly with an extended 120-second client timeout.
+
 ### Dataset Preprocessing & Composition
 The training pipeline merges and formats four primary medical instruction datasets, subjected to strict HTML scrubbing, boilerplate signature removal, unicode normalization, and MD5 hash deduplication:
 
-| Dataset | Raw Source | Primary Focus | Formatted Records | Final Split |
-| :--- | :--- | :--- | :--- | :--- |
-| **ChatDoctor** | Parquet (`lavita chats`) | Multi-turn doctor-patient QA | 70,000 | Train: 86,394 (90%) |
-| **PubMedQA** | Parquet (`PQA labelled`) | Biomedical abstract reasoning | 1,000 | Validation: 4,800 (5%) |
-| **MedQA** | JSONL (USMLE 4-option) | Clinical vignette reasoning | 10,000 | Test: 4,800 (5%) |
-| **MedMCQA** | Parquet (`MEDMCQs`) | Entrance exam QA & rationale | 14,994 | **Total**: **95,994** |
+| Dataset | Raw Source | Primary Focus | Formatted Records | Fine-Tuning Subset Used | Final Split |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **ChatDoctor** | Parquet (`lavita chats`) | Multi-turn doctor-patient QA | 70,000 | **~22,000** | Train: 86,394 (90%) |
+| **PubMedQA** | Parquet (`PQA labelled`) | Biomedical abstract reasoning | 1,000 | **1,000** | Validation: 4,800 (5%) |
+| **MedQA** | JSONL (USMLE 4-option) | Clinical vignette reasoning | 10,000 | **~3,500** | Test: 4,800 (5%) |
+| **MedMCQA** | Parquet (`MEDMCQs`) | Entrance exam QA & rationale | 14,994 | **~3,500** | **Total**: **95,994** |
+| **Total Corpus** | Aggregate | Clinical Instruction Tasks | **95,994** | **30,000** | *(Subset trained)* |
 
 ---
 
@@ -199,9 +207,12 @@ The training pipeline merges and formats four primary medical instruction datase
 | Hyperparameter | Value | Description |
 | :--- | :--- | :--- |
 | **Base Model** | `BioMistral/BioMistral-7B` | 7B parameter specialized medical LLM |
+| **Training Infrastructure** | **Kaggle GPUs (T4)** | Cloud GPU environment used due to local VRAM limits |
+| **Inference Hosting** | **Google Colab + ngrok** | Hosted inference server (`/v1/generate`) with ngrok HTTP tunnel |
+| **Dataset Size Trained** | **30,000 samples** | Subset selected due to GPU session time & VRAM compatibility |
 | **Quantization** | 4-bit NF4 | Double quantization + float16 compute dtype |
 | **Max Sequence Length** | 512 tokens | Hardware-aware memory constraint |
-| **Per-Device Batch Size** | 1 | Fits consumer VRAM (RTX 3050 4GB / T4) |
+| **Per-Device Batch Size** | 1 | Fits GPU VRAM (4GB-16GB GPUs) |
 | **Gradient Accumulation** | 16 steps | Effective global batch size = 16 |
 | **Optimizer** | `paged_adamw_8bit` | Memory-efficient 8-bit AdamW optimizer |
 | **Learning Rate** | $2 \times 10^{-4}$ | Cosine learning rate schedule with warmup |
