@@ -1,0 +1,39 @@
+{
+    "total_eval_samples": 25,
+    "average_word_count": 69.24,
+    "average_character_count": 411.8,
+    "completion_rate_percent": 60.0,
+    "clinical_referral_rate_percent": 96.0,
+    "category_breakdown": {
+        "symptoms": {
+            "samples": 5,
+            "avg_words": 79.2,
+            "completion_rate_percent": 80.0,
+            "referral_rate_percent": 100.0
+        },
+        "explanations": {
+            "samples": 5,
+            "avg_words": 90.8,
+            "completion_rate_percent": 80.0,
+            "referral_rate_percent": 100.0
+        },
+        "medication": {
+            "samples": 5,
+            "avg_words": 43.2,
+            "completion_rate_percent": 40.0,
+            "referral_rate_percent": 80.0
+        },
+        "emergency": {
+            "samples": 5,
+            "avg_words": 66.0,
+            "completion_rate_percent": 20.0,
+            "referral_rate_percent": 100.0
+        },
+        "labs": {
+            "samples": 5,
+            "avg_words": 67.0,
+            "completion_rate_percent": 80.0,
+            "referral_rate_percent": 100.0
+        }
+    }
+}
